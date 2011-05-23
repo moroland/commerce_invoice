@@ -1,0 +1,13 @@
+; $Id$
+name = Invoice
+description = Generate an invoice
+dependencies[] = rules
+dependencies[] = commerce_order
+package = Commerce
+core = 7.x
+
+; Module includes
+files[] = includes/commerce_invoice.controller.inc
+
+; Views includes
+files[] = includes/views/commerce_invoice.views.inc
