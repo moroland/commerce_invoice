@@ -101,11 +101,12 @@ function commerce_invoice_views_data_alter(&$data) {
     'title' => t('Invoice id'),
     'help' => t('The invoice id associated with this order.'),
     'relationship' => array(
-      'title' => t('Order'),
+      'title' => t('Invoice'),
       'help' => t("Relate this order to its invoice"),
       'handler' => 'views_handler_relationship',
       'base' => 'commerce_invoice',
       'base field' => 'order_id',
+      'relationship field' => 'order_id',
       'field' => 'order_id',
       'label' => t('Invoice associated to the order'),
     ),
