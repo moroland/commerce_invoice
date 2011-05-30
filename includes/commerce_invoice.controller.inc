@@ -91,11 +91,11 @@ class CommerceInvoiceEntityController extends DrupalDefaultEntityController {
       ->fields('i')
       ->orderBy('created', 'DESC')
       ->range(0, 1);
-    if ($record = $result->fetchObject()) {
-      $last_number = $record->invoice_number;
+    if ($record = $result->fetchAssoc()) {
+      $last_number = $record['invoice_number'];
       switch($method) {
         case COMMERCE_INVOICE_METHOD_INFINITE:
-          $last_id = $record->invoice_id;
+          $last_id = $record['invoice_id'];
           $id = $last_id + 1;
           $return = str_replace('[invoice_id]', $id, $method);
           break;
