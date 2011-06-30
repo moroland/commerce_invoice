@@ -22,12 +22,12 @@ function commerce_invoice_default_rules_configuration() {
   $rule
     ->event('commerce_order_update')
     ->condition('data_is', array(
-      'data:select' => 'order:status',
+      'data:select' => 'commerce-order:status',
       'op' => '==',
       'value' => 'completed'
     ))
     ->action('commerce_invoice_generate', array(
-      'order' => 'order',
+      'commerce_order:select' => 'commerce-order',
     ));
 
   $rules['commerce_invoice_generate_when_completed'] = $rule;

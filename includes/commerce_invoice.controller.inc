@@ -9,25 +9,25 @@
  * The controller class for invoices contains methods for the order CRUD
  * operations. The load method is inherited from the default controller.
  */
-class CommerceInvoiceEntityController extends DrupalDefaultEntityController {
+class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
 
   /**
    * Create a default invoice.
    *
-   * @param $order_id
-   *   The ID of the order the invoice belongs to.
+   * @param array $values
+   *   An array of values to set, keyed by property name
    *
    * @return
    *   An invoice object with all default fields initialized.
    */
-  public function create($order_id = 0) {
-    return (object) array(
+  public function create(array $values = array()) {
+    return (object) ($values + array(
       'invoice_id' => '',
       'invoice_number' => '',
-      'order_id' => $order_id,
+      'order_id' => 0,
       'created' => '',
       'changed' => '',
-    );
+    ));
   }
 
   /**
@@ -38,12 +38,14 @@ class CommerceInvoiceEntityController extends DrupalDefaultEntityController {
    *
    * @param $invoice
    *   The full invoice object to save.
+   * @param $transaction
+   *   An optional transaction object.
    *
    * @return
    *   The saved invoice object.
    */
-  public function save($invoice) {
-    $transaction = db_transaction();
+  public function save($invoice, DatabaseTransaction $transaction = NULL) {
+    $transaction = isset($transaction) ? $transaction : db_transaction();
 
     try {
       $invoice->changed = REQUEST_TIME;
@@ -87,10 +89,11 @@ class CommerceInvoiceEntityController extends DrupalDefaultEntityController {
     // Invoice generation method
     $method = variable_get('commerce_invoice_number_method', COMMERCE_INVOICE_METHOD_YEAR);
     // Get last invoice created
-    $result = db_select('invoice', 'i')
+    $result = db_select('commerce_invoice', 'i')
       ->fields('i')
       ->orderBy('created', 'DESC')
-      ->range(0, 1);
+      ->range(0, 1)
+      ->execute();
     if ($record = $result->fetchAssoc()) {
       $last_number = $record['invoice_number'];
       switch($method) {
@@ -153,15 +156,17 @@ class CommerceInvoiceEntityController extends DrupalDefaultEntityController {
    *
    * @param $invoice_ids
    *   An array of invoice IDs to delete.
+   * @param $transaction
+   *  An optional transaction object.
    *
    * @return
    *   TRUE on success, FALSE otherwise.
    */
-  public function delete($invoice_ids) {
+  public function delete($invoice_ids, DatabaseTransaction $transaction = NULL) {
     if (!empty($invoice_ids)) {
       $invoices = $this->load($invoice_ids, array());
 
-      $transaction = db_transaction();
+      $transaction = isset($transaction) ? $transaction : db_transaction();
 
       try {
         db_delete('commerce_invoice')

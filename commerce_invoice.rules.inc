@@ -17,7 +17,7 @@ function commerce_invoice_rules_action_info() {
   $actions['commerce_invoice_generate'] = array(
     'label' => t('Generate invoice'),
     'parameter' => array(
-      'order' => array(
+      'commerce_order' => array(
         'type' => 'commerce_order',
         'label' => t('Order to update'),
       ),

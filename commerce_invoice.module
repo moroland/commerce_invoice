@@ -87,7 +87,7 @@ function commerce_invoice_load_multiple($invoice_ids = array(), $conditions = ar
  *   An invoice object with all default fields initialized.
  */
 function commerce_invoice_new($order_id = 0) {
-  return entity_get_controller('commerce_invoice')->create($order_id);
+  return entity_get_controller('commerce_invoice')->create(array('order_id' => $order_id));
 }
 
 /**
