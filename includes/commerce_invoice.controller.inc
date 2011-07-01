@@ -54,14 +54,20 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
       if (empty($invoice->invoice_id)) {
         $invoice->created = REQUEST_TIME;
         $invoice->invoice_number = $this->generate_invoice_id();
+
+        $this->invoke('presave', $invoice);
         
         // Save the new invoice
         drupal_write_record('commerce_invoice', $invoice);
         field_attach_insert('commerce_invoice', $invoice);
+
+        $this->invoke('insert', $invoice);
       }
       else {
+        $this->invoke('presave', $invoice);
         drupal_write_record('commerce_invoice', $invoice, 'invoice_id');
         field_attach_update('commerce_invoice', $invoice);
+        $this->invoke('insert', $invoice);
       }
       
       // Ignore slave server temporarily to give time for the
@@ -146,7 +152,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
     else {
       // First invoice being generated
       $id = 1;
-      $return = str_replace('[invoice_id]', $id, $method);
+      $result = str_replace('[invoice_id]', $id, $method);
       return date($result);
     }
   }
@@ -172,6 +178,13 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
         db_delete('commerce_invoice')
           ->condition('invoice_id', $invoice_ids, 'IN')
           ->execute();
+
+        // Reset the cache as soon as the changes have been applied.
+        $this->resetCache($invoice_ids);
+ 
+        foreach ($invoices as $id => $invoice) {
+          $this->invoke('delete', $invoice);
+        }
 
         // Ignore slave server temporarily to give time for the
         // saved invoice to be propagated to the slave.
