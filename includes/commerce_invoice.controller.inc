@@ -45,8 +45,6 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
    *   The saved invoice object.
    */
   public function save($invoice, DatabaseTransaction $transaction = NULL) {
-    $transaction = isset($transaction) ? $transaction : db_transaction();
-
     try {
       $invoice->changed = REQUEST_TIME;
       
@@ -56,25 +54,50 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
         $invoice->invoice_number = $this->generate_invoice_id();
 
         $this->invoke('presave', $invoice);
-        
-        // Save the new invoice
-        drupal_write_record('commerce_invoice', $invoice);
-        field_attach_insert('commerce_invoice', $invoice);
-
+        $invoice = $this->_save($invoice, $transaction);
         $this->invoke('insert', $invoice);
       }
       else {
         $this->invoke('presave', $invoice);
-        drupal_write_record('commerce_invoice', $invoice, 'invoice_id');
-        field_attach_update('commerce_invoice', $invoice);
+        $invoice = $this->_save($invoice, $transaction);
         $this->invoke('insert', $invoice);
       }
       
+      return $invoice;
+    }
+    catch (Exception $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Saves an invoice (helper function)
+   *
+   * @param $invoice
+   *   The full invoice object to save.
+   * @param $transaction
+   *   An optional transaction object.
+   *
+   * @return
+   *   The saved invoice object.
+   */
+  private function _save($invoice, DatabaseTransaction $transaction = NULL) {
+    $transaction = isset($transaction) ? $transaction : db_transaction();
+    try {
+      if (empty($invoice->invoice_id)) {
+        // Save the new invoice
+        drupal_write_record('commerce_invoice', $invoice);
+        field_attach_insert('commerce_invoice', $invoice);
+      }
+      else {
+        drupal_write_record('commerce_invoice', $invoice, 'invoice_id');
+        field_attach_update('commerce_invoice', $invoice);
+      }
       // Ignore slave server temporarily to give time for the
       // saved invoice to be propagated to the slave.
       db_ignore_slave();
 
-      
+
       return $invoice;
     }
     catch (Exception $e) {
@@ -83,7 +106,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
       throw $e;
     }
   }
-  
+
   /**
    * Generates invoice id
    * 
