@@ -133,8 +133,8 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
           break;
         case COMMERCE_INVOICE_METHOD_YEAR:
           // Are we in the same year as the last invoice
-          $last_year = strstr($last_number, '-', TRUE);
-          $last_year = str_replace('-', '', $last_year);
+          $dash_pos = strpos($last_number, '-');
+          $last_year = substr($last_number, 0, $dash_pos);
           if ($last_year == date('Y')) {
             // Get last invoice id
             $last_id = strstr($last_number, '-');
