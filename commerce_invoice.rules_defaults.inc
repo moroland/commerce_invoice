@@ -26,6 +26,9 @@ function commerce_invoice_default_rules_configuration() {
       'op' => '==',
       'value' => 'completed'
     ))
+    ->condition(rules_condition('commerce_invoice_exists', array(
+      'commerce_order:select' => 'commerce-order'
+    ))->negate())
     ->action('commerce_invoice_generate', array(
       'commerce_order:select' => 'commerce-order',
     ));
