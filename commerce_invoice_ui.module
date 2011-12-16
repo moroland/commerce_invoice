@@ -15,7 +15,7 @@ function commerce_invoice_ui_menu() {
     'description' => 'Configure general invoice settings.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_invoice_settings_form'),
-    'access arguments' => array('administer invoices'),
+    'access arguments' => array('configure invoice settings'),
     'file' => 'includes/commerce_invoice_ui.invoices.inc',
   );
   $items['admin/commerce/config/invoice/settings'] = array(

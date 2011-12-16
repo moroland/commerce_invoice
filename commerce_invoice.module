@@ -42,8 +42,16 @@ function commerce_invoice_entity_info() {
       'creation callback' => '_commerce_invoice_create',
       'save callback' => 'commerce_invoice_save',
       'deletion callback' => 'commerce_invoice_delete',
-      'access callback' => 'commerce_invoice_access',
+      'access callback' => 'commerce_entity_access',
+      'access arguments' => array(
+        'user key' => 'uid',
+        'access tag' => 'commerce_invoice_access',
+      ),
       'token type' => 'commerce-invoice',
+      'permission labels' => array(
+        'singular' => t('invoice'),
+        'plural' => t('invoices'),
+      ),
     ),
   );
 
@@ -143,42 +151,31 @@ function commerce_invoice_delete_multiple($invoice_ids) {
 }
 
 /**
- * Determines access to perform an operation on a particular invoice.
+ * Checks invoice access for various operations.
  *
  * @param $op
- *   The operation to perform on the invoice, either 'update' or 'delete'.
+ *   The operation being performed. One of 'view', 'update', 'create' or
+ *   'delete'.
  * @param $invoice
- *   The invoice object in question.
+ *   Optionally an invoice to check access for.
  * @param $account
- *   The user account whose access should be checked; defaults to the current
- *   user if left NULL.
- *
- * @return
- *   TRUE or FALSE indicating whether or not access should be granted.
+ *   The user to check for. Leave it to NULL to check for the current user.
  */
-function commerce_invoice_access($op, $invoice, $account = NULL) {
-  return TRUE;
+function commerce_invoice_access($op, $invoice = NULL, $account = NULL) {
+  return commerce_entity_access($op, $invoice, $account, 'commerce_invoice');
 }
 
 /**
  * Implements hook_permission().
  */
 function commerce_invoice_permission() {
-  $permissions = array(
-    'administer invoices' => array(
-      'title' => t('Administer invoices'),
+  return commerce_entity_access_permissions('commerce_invoice') + array(
+    'configure invoice settings' => array(
+      'title' => t('Configure invoice settings'),
+      'description' => t('Allows users to configure invoice settings for the store.'),
       'restrict access' => TRUE,
-    ),
-    'access invoices' => array(
-      'title' => t('Access lists of invoices, primarily for viewing and referencing'),
-      'restrict access' => TRUE,
-    ),
-    'view own invoices' => array(
-      'title' => t('View own invoices'),
     ),
   );
-
-  return $permissions;
 }
 
 /**
