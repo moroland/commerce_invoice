@@ -3,7 +3,7 @@ name = Invoice
 description = Generate an invoice
 dependencies[] = rules
 dependencies[] = commerce_order
-package = Commerce
+package = Commerce (contrib)
 core = 7.x
 
 ; Module includes
