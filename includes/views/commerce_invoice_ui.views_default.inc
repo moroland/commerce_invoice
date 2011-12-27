@@ -24,7 +24,7 @@ function commerce_invoice_ui_views_default_views() {
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'Commerce Invoice';
   $handler->display->display_options['access']['type'] = 'perm';
-  $handler->display->display_options['access']['perm'] = 'view own commerce_invoice entities';
+  $handler->display->display_options['access']['perm'] = 'administer commerce_invoice entities';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['query_comment'] = FALSE;
@@ -45,10 +45,6 @@ function commerce_invoice_ui_views_default_views() {
   $handler->display->display_options['relationships']['commerce_customer_billing_profile_id']['field'] = 'commerce_customer_billing_profile_id';
   $handler->display->display_options['relationships']['commerce_customer_billing_profile_id']['relationship'] = 'order_id';
   $handler->display->display_options['relationships']['commerce_customer_billing_profile_id']['required'] = 0;
-  /* Field: Commerce Invoice: Invoice ID */
-  $handler->display->display_options['fields']['invoice_id']['id'] = 'invoice_id';
-  $handler->display->display_options['fields']['invoice_id']['table'] = 'commerce_invoice';
-  $handler->display->display_options['fields']['invoice_id']['field'] = 'invoice_id';
   /* Field: Commerce Invoice: Invoice number */
   $handler->display->display_options['fields']['invoice_number']['id'] = 'invoice_number';
   $handler->display->display_options['fields']['invoice_number']['table'] = 'commerce_invoice';
@@ -205,24 +201,41 @@ function commerce_invoice_ui_views_default_views() {
     'calculation' => FALSE,
   );
   $handler->display->display_options['fields']['commerce_order_total']['field_api_classes'] = 0;
-  /* Contextual filter: Commerce Invoice: Invoice ID */
-  $handler->display->display_options['arguments']['invoice_id']['id'] = 'invoice_id';
-  $handler->display->display_options['arguments']['invoice_id']['table'] = 'commerce_invoice';
-  $handler->display->display_options['arguments']['invoice_id']['field'] = 'invoice_id';
-  $handler->display->display_options['arguments']['invoice_id']['default_action'] = 'default';
-  $handler->display->display_options['arguments']['invoice_id']['default_argument_type'] = 'node';
-  $handler->display->display_options['arguments']['invoice_id']['default_argument_skip_url'] = 0;
-  $handler->display->display_options['arguments']['invoice_id']['summary']['number_of_records'] = '0';
-  $handler->display->display_options['arguments']['invoice_id']['summary']['format'] = 'default_summary';
-  $handler->display->display_options['arguments']['invoice_id']['summary_options']['items_per_page'] = '25';
-  $handler->display->display_options['arguments']['invoice_id']['validate']['type'] = 'node';
-  $handler->display->display_options['arguments']['invoice_id']['validate_options']['access'] = 0;
-  $handler->display->display_options['arguments']['invoice_id']['break_phrase'] = 0;
-  $handler->display->display_options['arguments']['invoice_id']['not'] = 0;
+  /* Contextual filter: Commerce Order: Order ID */
+  $handler->display->display_options['arguments']['order_id']['id'] = 'order_id';
+  $handler->display->display_options['arguments']['order_id']['table'] = 'commerce_order';
+  $handler->display->display_options['arguments']['order_id']['field'] = 'order_id';
+  $handler->display->display_options['arguments']['order_id']['relationship'] = 'order_id';
+  $handler->display->display_options['arguments']['order_id']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['order_id']['summary']['format'] = 'default_summary';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');
+  $handler->display->display_options['defaults']['access'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'view any commerce_invoice entity';
   $handler->display->display_options['path'] = 'commerce/invoice/%';
+
+  /* Display: Page */
+  $handler = $view->new_display('page', 'Page', 'page_1');
+  $handler->display->display_options['defaults']['arguments'] = FALSE;
+  /* Contextual filter: Commerce Order: Order ID */
+  $handler->display->display_options['arguments']['order_id']['id'] = 'order_id';
+  $handler->display->display_options['arguments']['order_id']['table'] = 'commerce_order';
+  $handler->display->display_options['arguments']['order_id']['field'] = 'order_id';
+  $handler->display->display_options['arguments']['order_id']['relationship'] = 'order_id';
+  $handler->display->display_options['arguments']['order_id']['default_action'] = 'default';
+  $handler->display->display_options['arguments']['order_id']['default_argument_type'] = 'node';
+  $handler->display->display_options['arguments']['order_id']['default_argument_skip_url'] = 0;
+  $handler->display->display_options['arguments']['order_id']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['order_id']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['order_id']['summary_options']['items_per_page'] = '25';
+  $handler->display->display_options['arguments']['order_id']['break_phrase'] = 0;
+  $handler->display->display_options['arguments']['order_id']['not'] = 0;
+  $handler->display->display_options['path'] = 'admin/commerce/orders/%/invoice';
+  $handler->display->display_options['menu']['type'] = 'tab';
+  $handler->display->display_options['menu']['title'] = 'Invoice';
+  $handler->display->display_options['menu']['weight'] = '0';
   
   $views[$view->name] = $view;
   
