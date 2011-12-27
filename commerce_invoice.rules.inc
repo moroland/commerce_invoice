@@ -68,7 +68,7 @@ function commerce_invoice_rules_action_info() {
 }
 
 function commerce_invoice_rules_generate($order) {
-  $invoice = commerce_invoice_new($order->order_id);
+  $invoice = commerce_invoice_new($order->uid, $order->order_id);
   commerce_invoice_save($invoice);
 }
 

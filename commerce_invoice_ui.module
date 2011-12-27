@@ -23,6 +23,26 @@ function commerce_invoice_ui_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -10,
   );
+  
+  $items['admin/commerce/orders/%commerce_order/invoice'] = array(
+    'title' => 'Invoice',
+    'page callback' => 'commerce_invoice_ui_invoice_view_by_order',
+    'page arguments' => array(3),
+    'access callback' => 'commerce_invoice_access',
+    'access arguments' => array('view', 3),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -5,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+  
+  $items['user/%user/invoices/%commerce_invoice'] = array(
+    'title callback' => 'commerce_invoice_ui_invoice_title',
+    'title arguments' => array(3),
+    'page callback' => 'commerce_invoice_ui_invoice_view',
+    'page arguments' => array(3, 'customer', FALSE),
+    'access callback' => 'commerce_invoice_access',
+    'access arguments' => array('view', 3),
+  );
 
   return $items;
 }
@@ -35,4 +55,77 @@ function commerce_invoice_ui_views_api() {
     'api' => 3,
     'path' => drupal_get_path('module', 'commerce_invoice_ui') . '/includes/views',
   );
+}
+
+/**
+ * Menu item title callback: returns the number of an invoice for its pages.
+ *
+ * @param $invoice
+ *   The invoice object as loaded via the URL wildcard.
+ * @return
+ *   A page title of the format "Invoice ##".
+ */
+function commerce_invoice_ui_invoice_title($invoice) {
+  return t('Invoice @number', array('@number' => $invoice->invoice_number));
+}
+
+/**
+ * Sets the breadcrumb for invoice pages.
+ *
+ * @param $view_mode
+ *   The view mode for the current invoice page, 'administrator' or 'customer'.
+ */
+function commerce_invoice_ui_set_breadcrumb($view_mode = 'administrator') {
+  $breadcrumb = array();
+
+  // Create the breadcrumb array based on the view mode.
+  if ($view_mode == 'administrator') {
+    $breadcrumb = array(
+      l(t('Home'), '<front>'),
+      l(t('Administration'), 'admin'),
+      l(t('Store'), 'admin/commerce'),
+      l(t('Orders', array(), array('context' => 'a drupal commerce order')), 'admin/commerce/orders'),
+    );
+  }
+
+  drupal_set_breadcrumb($breadcrumb);
+}
+
+/**
+ * Generate an array for rendering the given invoice.
+ *
+ * @param $invoice
+ *   A fully loaded invoice object.
+ * @param $view_mode
+ *   The view mode for displaying the invoice, 'administrator' or 'customer'.
+ *
+ * @return
+ *   An array as expected by drupal_render().
+ */
+function commerce_invoice_ui_invoice_view($invoice, $view_mode = 'administrator', $breadcrumb = TRUE) {
+  // Set the breadcrumb for the appropriate view mode if specified.
+  if ($breadcrumb) {
+    commerce_invoice_ui_set_breadcrumb();
+  }
+
+  drupal_add_css(drupal_get_path('module', 'commerce_order') . '/theme/commerce_order.css');
+
+  return entity_view('commerce_invoice', array($invoice->invoice_id => $invoice), $view_mode, NULL, TRUE);
+}
+
+/**
+ * Generate an array for rendering the given invoice, based on an order.
+ *
+ * @param $order
+ *   A fully loaded order object.
+ * @param $view_mode
+ *   The view mode for displaying the invoice, 'administrator' or 'customer'.
+ *
+ * @return
+ *   An array as expected by drupal_render().
+ */
+function commerce_invoice_ui_invoice_view_by_order($order, $view_mode = 'administrator', $breadcrumb = TRUE) {
+  $invoice = commerce_invoice_load_by_order_id($order->order_id);
+  
+  return commerce_invoice_ui_invoice_view($invoice, $view_mode, $breadcrumb);
 }

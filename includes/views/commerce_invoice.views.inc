@@ -23,7 +23,7 @@ function commerce_invoice_views_data() {
     'title' => t('Invoice ID', array(), array('context' => 'a drupal commerce invoice')),
     'help' => t('The unique internal identifier of the invoice.'),
     'field' => array(
-      'handler' => 'views_handler_field',
+      'handler' => 'commerce_invoice_handler_field_invoice',
       'click sortable' => TRUE,
     ),
     'filter' => array(
@@ -45,7 +45,7 @@ function commerce_invoice_views_data() {
     'title' => t('Invoice number', array(), array('context' => 'a drupal commerce invoice')),
     'help' => t('The unique invoice number.'),
     'field' => array(
-      'handler' => 'views_handler_field',
+      'handler' => 'commerce_invoice_handler_field_invoice',
       'click sortable' => TRUE,
     ),
     'filter' => array(
@@ -71,6 +71,55 @@ function commerce_invoice_views_data() {
       'base field' => 'order_id',
       'field' => 'order_id',
       'label' => t('Order associated to the invoice'),
+    ),
+  );
+  
+  // Expose the invoice type.
+  $data['commerce_invoice']['type'] = array(
+    'title' => t('Invoice type', array(), array('context' => 'a drupal commerce invoice')),
+    'help' => t('The type of the invoice.'),
+    'field' => array(
+      'handler' => 'commerce_invoice_handler_field_invoice_type',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'commerce_invoice_handler_filter_invoice_type',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+  
+  // Expose the owner uid.
+  $data['commerce_invoice']['uid'] = array(
+    'title' => t('Uid'),
+    'help' => t("The owner's user ID."),
+    'field' => array(
+      'handler' => 'views_handler_field_user',
+      'click sortable' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_user_uid',
+      'name field' => 'name', // display this field in the summary
+    ),
+    'filter' => array(
+      'title' => t('Name'),
+      'handler' => 'views_handler_filter_user_name',
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort',
+    ),
+    'relationship' => array(
+      'title' => t('Owner'),
+      'help' => t("Relate this invoice to its owner's user account"),
+      'handler' => 'views_handler_relationship',
+      'base' => 'users',
+      'base field' => 'uid',
+      'field' => 'uid',
+      'label' => t('Invoice owner'),
     ),
   );
   
