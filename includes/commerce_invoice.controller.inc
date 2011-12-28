@@ -230,33 +230,40 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
   }
   
   /**
-   * Generate an array for rendering the given entities.
+   * Builds a structured array representing the entity's content.
    *
-   * @param $entities
-   *   An array of entities to render.
+   * The content built for the entity will vary depending on the $view_mode
+   * parameter.
+   *
+   * @param $entity
+   *   An entity object.
    * @param $view_mode
-   *   View mode, e.g. 'full', 'teaser'...
+   *   View mode, e.g. 'administrator'
    * @param $langcode
    *   (optional) A language code to use for rendering. Defaults to the global
    *   content language of the current request.
-   * @param $page
-   *   (optional) If set will control if the entity is rendered: if TRUE
-   *   the entity will be rendered without its title, so that it can be embeded
-   *   in another context. If FALSE the entity will be displayed with its title
-   *   in a mode suitable for lists.
-   *   If unset, the page mode will be enabled if the current path is the URI
-   *   of the entity, as returned by entity_uri().
-   *   This parameter is only supported for entities which controller is a
-   *   EntityAPIControllerInterface.
    * @return
    *   The renderable array.
    */
-  public function view($entities, $view_mode = '', $langcode = NULL, $page = NULL) {
-    $view = array();
-    foreach ($entities as $key => $entity) {
-      $view[$this->entityType][$key] = entity_view('commerce_order', array($entity->order_id => commerce_order_load($entity->order_id)), $view_mode, NULL, TRUE);
-    }
-    return $view;
+  public function buildContent($invoice, $view_mode = 'administrator', $langcode = NULL, $content = array()) {
+    // Load the order this invoice is attached to.
+    $order = commerce_order_load($invoice->order_id);
+    
+    $content['invoice_number'] = array(
+      '#type' => 'item',
+      '#title' => t('Invoice number'),
+      '#markup' => $invoice->invoice_number,
+    );
+    
+    $content['created'] = array(
+      '#type' => 'item',
+      '#title' => t('Date'),
+      '#markup' => format_date($invoice->created, 'short')
+    );
+    
+    $content['commerce_order'] = entity_build_content('commerce_order', $order, $view_mode, $langcode);
+
+    return parent::buildContent($invoice, $view_mode, $langcode, $content);
   }
 }
       
