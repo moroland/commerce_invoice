@@ -127,5 +127,11 @@ function commerce_invoice_ui_invoice_view($invoice, $view_mode = 'administrator'
 function commerce_invoice_ui_invoice_view_by_order($order, $view_mode = 'administrator', $breadcrumb = TRUE) {
   $invoice = commerce_invoice_load_by_order_id($order->order_id);
   
-  return commerce_invoice_ui_invoice_view($invoice, $view_mode, $breadcrumb);
+  if ($invoice) {
+    return commerce_invoice_ui_invoice_view($invoice, $view_mode, $breadcrumb);
+  }
+  else {
+    drupal_set_message(t('The invoice for this order has not been generated yet'), 'warning');
+    return '';
+  }
 }
