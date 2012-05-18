@@ -168,7 +168,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
           else {
             $id = 1;
           }
-          $return = date('Y').'-'.date('m').$id;
+          $return = date('Y') . '-' . date('m') . '-' . $id;
           break;
       }
       return $return;
