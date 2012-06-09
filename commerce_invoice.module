@@ -5,7 +5,7 @@
  * @file
  * Generates the invoice and allows you to display an invoice id in views
  */
- 
+
 // Invoice number generation methods
 
 // One single number, never regenerated
@@ -16,7 +16,7 @@ define('COMMERCE_INVOICE_METHOD_YEAR', 'Y-[invoice_id]');
 
 // Invoice id is regenerated every month
 define('COMMERCE_INVOICE_METHOD_MONTH', 'Y-m-[invoice_id]');
- 
+
 /**
  * Implements hook_entity_info().
  */
@@ -83,13 +83,16 @@ function commerce_invoice_load($invoice_id) {
  */
 function commerce_invoice_load_by_order_id($order_id) {
   $query = new EntityFieldQuery();
-  
+  $return = FALSE;
   $result = $query
     ->entityCondition('entity_type', 'commerce_invoice')
     ->propertyCondition('order_id', $order_id)
     ->execute();
-  $invoice = array_keys($result['commerce_invoice']);
-  return $result ? commerce_invoice_load(reset($invoice)) : FALSE;
+  if ($result) {
+    $invoice = array_keys($result['commerce_invoice']);
+    $return = commerce_invoice_load(reset($invoice));
+  }
+  return $return;
 }
 
 /**
