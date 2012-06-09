@@ -23,6 +23,7 @@ function commerce_invoice_email_default_rules_configuration() {
     ->action('variable_email_mail', array(
       'to' => '[commerce-invoice:order:mail]',
       'variable' => 'commerce_invoice_email_invoice_[mail_part]', 
+      'language' => 'default',
     ));
     
   $rule->weight = 9;
@@ -40,6 +41,7 @@ function commerce_invoice_email_default_rules_configuration() {
     ->action('variable_email_mail', array(
       'to:select' => 'site:mail',
       'variable' => 'commerce_invoice_email_admin_invoice_[mail_part]', 
+      'language' => 'default',
     ));
   
   $rules['commerce_invoice_email_admin_invoice_html'] = $rule;
