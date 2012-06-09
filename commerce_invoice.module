@@ -88,7 +88,8 @@ function commerce_invoice_load_by_order_id($order_id) {
     ->entityCondition('entity_type', 'commerce_invoice')
     ->propertyCondition('order_id', $order_id)
     ->execute();
-  return $result ? commerce_invoice_load(reset(array_keys($result['commerce_invoice']))) : FALSE;
+  $invoice = array_keys($result['commerce_invoice']);
+  return $result ? commerce_invoice_load(reset($invoice)) : FALSE;
 }
 
 /**
