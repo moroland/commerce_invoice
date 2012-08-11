@@ -168,7 +168,6 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
           else {
             $id = 1;
           }
-          $return = date('Y') . '-' . date('m') . '-' . $id;
           break;
       }
       return $return;
@@ -248,23 +247,22 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
   public function buildContent($invoice, $view_mode = 'administrator', $langcode = NULL, $content = array()) {
     // Load the order this invoice is attached to.
     $order = commerce_order_load($invoice->order_id);
-    
+
+    $order_build_content = entity_build_content('commerce_order', $order, $view_mode, $langcode);
+    foreach($order_build_content as $field => $instance){
+      if(substr($field,0,1) != '#' || $field == '#attached'){
+        $content[$field] = $instance;
+      }
+    }
+
     $content['invoice_number'] = array(
-      '#type' => 'item',
-      '#title' => t('Invoice number'),
-      '#markup' => $invoice->invoice_number,
+      '#markup' => theme('commerce_invoice_number', array('invoice_number' => $invoice->invoice_number, 'label' => t('Invoice number:'), 'invoice' => $invoice)),
     );
-    
+
     $content['created'] = array(
-      '#type' => 'item',
-      '#title' => t('Date'),
-      '#markup' => format_date($invoice->created, 'short')
+      '#markup' => theme('commerce_invoice_created', array('created' => format_date($invoice->created, 'short'), 'label' => t('Date:'), 'invoice' => $invoice)),
     );
-    
-    $content['commerce_order'] = entity_build_content('commerce_order', $order, $view_mode, $langcode);
 
     return parent::buildContent($invoice, $view_mode, $langcode, $content);
   }
 }
-      
-      

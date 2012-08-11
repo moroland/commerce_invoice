@@ -26,7 +26,7 @@ function commerce_invoice_entity_info() {
       'label' => t('Commerce Invoice'),
       'controller class' => 'CommerceInvoiceEntityController',
       'base table' => 'commerce_invoice',
-      'fieldable' => FALSE,
+      'fieldable' => TRUE,
       'entity keys' => array(
         'id' => 'invoice_id',
         'bundle' => 'type',
@@ -251,6 +251,60 @@ function commerce_invoice_type_get_name($type = NULL) {
   }
 }
 
+/**
+ * Implements hook_field_extra_fields().
+ */
+function commerce_invoice_field_extra_fields() {
+  $extra = array();
+
+  $extra['commerce_invoice']['commerce_invoice'] = array(
+    'display' => array(
+      'invoice_number' => array(
+        'label' => t('Invoice number'),
+        'description' => t('Display simple invoice number'),
+        'weight' => -10,
+      ),
+      'created' => array(
+        'label' => t('Created'),
+        'description' => t('Display date of invoice creation'),
+        'weight' => -5,
+      ),
+    ),
+  );
+
+  $order_field_instances = field_info_instances('commerce_order', 'commerce_order');
+
+  if (!empty($order_field_instances)) {
+    foreach($order_field_instances as $field => $properties){
+      $extra['commerce_invoice']['commerce_invoice']['display'][$field] = array(
+        'label' => t('Order: @label', array('@label' => $properties['label'])),
+        'description' => $properties['description'],
+        'entity' => 'commerce_order',
+        'weight' => 0
+      );
+    }
+  }
+
+  return $extra;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_invoice_theme() {
+  return array(
+    'commerce_invoice_number' => array(
+      'variables' => array('invoice_number' => NULL, 'label' => NULL, 'invoice' => NULL),
+      'path' => drupal_get_path('module', 'commerce_invoice') . '/theme',
+      'template' => 'commerce-invoice-number',
+    ),
+    'commerce_invoice_created' => array(
+      'variables' => array('created' => NULL, 'label' => NULL, 'invoice' => NULL),
+      'path' => drupal_get_path('module', 'commerce_invoice') . '/theme',
+      'template' => 'commerce-invoice-created',
+    ),
+  );
+}
 
 /**
  * Implements hook_views_api().

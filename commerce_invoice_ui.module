@@ -157,3 +157,15 @@ function commerce_invoice_ui_access_by_order($op, $order = NULL, $account = NULL
     return FALSE;
   }
 }
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function commerce_invoice_ui_entity_info_alter(&$entity_info) {
+  // Expose the order UI for invoice fields.
+  $entity_info['commerce_invoice']['bundles']['commerce_invoice']['admin'] = array(
+    'path' => 'admin/commerce/config/invoice',
+    'real path' => 'admin/commerce/config/invoice',
+    'access arguments' => array('configure invoice settings'),
+  );
+}
