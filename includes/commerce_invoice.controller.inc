@@ -36,7 +36,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
    * Saves an invoice.
    *
    * When saving an invoice, the function will automatically create an invoice number
-   * based 
+   * based
    *
    * @param $invoice
    *   The full invoice object to save.
@@ -49,7 +49,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
   public function save($invoice, DatabaseTransaction $transaction = NULL) {
     try {
       $invoice->changed = REQUEST_TIME;
-      
+
       // Inserting new invoice
       if (empty($invoice->invoice_id)) {
         $invoice->created = REQUEST_TIME;
@@ -64,7 +64,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
         $invoice = $this->_save($invoice, $transaction);
         $this->invoke('insert', $invoice);
       }
-      
+
       return $invoice;
     }
     catch (Exception $e) {
@@ -111,7 +111,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
 
   /**
    * Generates invoice id
-   * 
+   *
    * @return
    *   The generated invoice id
    */
@@ -168,10 +168,11 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
           else {
             $id = 1;
           }
+          $return = date('Y') . '-' . date('m') . '-' . $id;
           break;
       }
       return $return;
-            
+
     }
     else {
       // First invoice being generated
@@ -180,7 +181,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
       return date($result);
     }
   }
-  
+
   /**
    * Deletes multiple invoices by ID.
    *
@@ -205,7 +206,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
 
         // Reset the cache as soon as the changes have been applied.
         $this->resetCache($invoice_ids);
- 
+
         foreach ($invoices as $id => $invoice) {
           $this->invoke('delete', $invoice);
         }
@@ -227,7 +228,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
 
     return TRUE;
   }
-  
+
   /**
    * Builds a structured array representing the entity's content.
    *
