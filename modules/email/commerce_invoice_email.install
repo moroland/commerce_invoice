@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * Implements hook_enable().
+ */
+
+function commerce_invoice_email_enable() {
+  // Deactivate default commerce rules to send invoice email
+  $rules_config = rules_config_load('commerce_invoice_email');
+  $rules_config->active = FALSE;
+  $rules_config->save();
+}
+
+/**
+ * Implements hook_disable().
+ */
+function commerce_invoice_email_disable() {
+  // Activate default commerce rules to send invoice email
+  $rules_config = rules_config_load('commerce_invoice_email');
+  $rules_config->active = TRUE;
+  $rules_config->save();
+}
