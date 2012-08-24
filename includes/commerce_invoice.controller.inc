@@ -62,7 +62,7 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
       else {
         $this->invoke('presave', $invoice);
         $invoice = $this->_save($invoice, $transaction);
-        $this->invoke('insert', $invoice);
+        $this->invoke('save', $invoice);
       }
 
       return $invoice;
