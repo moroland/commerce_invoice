@@ -47,13 +47,14 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
    *   The saved invoice object.
    */
   public function save($invoice, DatabaseTransaction $transaction = NULL) {
+    $transaction = !is_null($transaction) ? $transaction : db_transaction();
     try {
       $invoice->changed = REQUEST_TIME;
 
       // Inserting new invoice
       if (empty($invoice->invoice_id)) {
         $invoice->created = REQUEST_TIME;
-        $invoice->invoice_number = $this->generate_invoice_id();
+        $invoice->invoice_number = $this->generate_invoice_id($invoice);
 
         $this->invoke('presave', $invoice);
         $invoice = $this->_save($invoice, $transaction);
@@ -68,6 +69,8 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
       return $invoice;
     }
     catch (Exception $e) {
+      $transaction->rollback();
+      watchdog_exception('commerce_invoice', $e);
       throw $e;
     }
   }
@@ -84,38 +87,31 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
    *   The saved invoice object.
    */
   private function _save($invoice, DatabaseTransaction $transaction = NULL) {
-    $transaction = isset($transaction) ? $transaction : db_transaction();
-    try {
-      if (empty($invoice->invoice_id)) {
-        // Save the new invoice
-        drupal_write_record('commerce_invoice', $invoice);
-        field_attach_insert('commerce_invoice', $invoice);
-      }
-      else {
-        drupal_write_record('commerce_invoice', $invoice, 'invoice_id');
-        field_attach_update('commerce_invoice', $invoice);
-      }
-      // Ignore slave server temporarily to give time for the
-      // saved invoice to be propagated to the slave.
-      db_ignore_slave();
-
-
-      return $invoice;
+    if (empty($invoice->invoice_id)) {
+      // Save the new invoice
+      drupal_write_record('commerce_invoice', $invoice);
+      field_attach_insert('commerce_invoice', $invoice);
     }
-    catch (Exception $e) {
-      $transaction->rollback();
-      watchdog_exception('commerce_invoice', $e);
-      throw $e;
+    else {
+      drupal_write_record('commerce_invoice', $invoice, 'invoice_id');
+      field_attach_update('commerce_invoice', $invoice);
     }
+    // Ignore slave server temporarily to give time for the
+    // saved invoice to be propagated to the slave.
+    db_ignore_slave();
+
+    return $invoice;
   }
 
   /**
    * Generates invoice id
    *
+   * @param object $invoice The invoice to generate an invoice number for.
+   *
    * @return
    *   The generated invoice id
    */
-  protected function generate_invoice_id() {
+  protected function generate_invoice_id($invoice) {
     // TODO: there is probably a better way to do this
     // Invoice generation method
     $method = variable_get('commerce_invoice_number_method', COMMERCE_INVOICE_METHOD_YEAR);
@@ -169,6 +165,16 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
             $id = 1;
           }
           $return = date('Y') . '-' . date('m') . '-' . $id;
+          break;
+        case COMMERCE_INVOICE_METHOD_CALLBACK:
+          $function_name = variable_get('commerce_invoice_number_callback', '');
+          if (empty($function_name) || !function_exists($function_name)) {
+            drupal_set_message(t('No valid callback defined for invoice number generation.'), 'error');
+            $return = t('no-invoice-number');
+          }
+          else {
+            $return = $function_name($invoice);
+          }
           break;
       }
       return $return;
