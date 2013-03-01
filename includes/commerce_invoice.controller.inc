@@ -115,6 +115,16 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
     // TODO: there is probably a better way to do this
     // Invoice generation method
     $method = variable_get('commerce_invoice_number_method', COMMERCE_INVOICE_METHOD_YEAR);
+    if ($method == COMMERCE_INVOICE_METHOD_CALLBACK) {
+      $function_name = variable_get('commerce_invoice_number_callback', '');
+      if (empty($function_name) || !function_exists($function_name)) {
+        drupal_set_message(t('No valid callback defined for invoice number generation.'), 'error');
+        return t('no-invoice-number');
+      } else {
+        return $function_name($invoice);
+      }
+    }
+
     // Get last invoice created
     $result = db_select('commerce_invoice', 'i')
       ->fields('i')
@@ -165,16 +175,6 @@ class CommerceInvoiceEntityController extends DrupalCommerceEntityController {
             $id = 1;
           }
           $return = date('Y') . '-' . date('m') . '-' . $id;
-          break;
-        case COMMERCE_INVOICE_METHOD_CALLBACK:
-          $function_name = variable_get('commerce_invoice_number_callback', '');
-          if (empty($function_name) || !function_exists($function_name)) {
-            drupal_set_message(t('No valid callback defined for invoice number generation.'), 'error');
-            $return = t('no-invoice-number');
-          }
-          else {
-            $return = $function_name($invoice);
-          }
           break;
       }
       return $return;
