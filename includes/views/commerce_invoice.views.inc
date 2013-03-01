@@ -11,6 +11,7 @@ function commerce_invoice_views_data() {
   $data = array();
 
   $data['commerce_invoice']['table']['group']  = t('Commerce Invoice');
+  $data['commerce_invoice']['table']['entity type'] = 'commerce_invoice';
 
   $data['commerce_invoice']['table']['base'] = array(
     'field' => 'invoice_number',
