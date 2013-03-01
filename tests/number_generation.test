@@ -1,0 +1,82 @@
+<?php
+
+
+/**
+ * @file
+ * Implements tests for the theme switching rules.
+ */
+
+
+class InvoiceNumberGenerationWebTestCase extends DrupalWebTestCase {
+  protected $privileged_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Invoice number generation test',
+      'description' => 'Tests the number generation of the commerce_invoice module.',
+      'group' => 'Commerce Invoice',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(
+      'commerce',
+      'commerce_order',
+      'commerce_order_ui',
+      'commerce_invoice',
+      'commerce_invoice_ui',
+      'rules_admin');
+
+    $this->privileged_user = $this->drupalCreateUser(array(
+      'bypass rules access',
+      'configure invoice settings',
+      'view any commerce_order entity',
+      'create commerce_order entities',
+      'edit any commerce_order entity',
+      'create commerce_invoice entities',
+      'view any commerce_invoice entity'));
+    $this->drupalLogin($this->privileged_user);
+
+    $this->disableEmailSendingRule();
+  }
+
+  public function disableEmailSendingRule() {
+    $edit = array();
+    $this->drupalPost('admin/config/workflow/rules/reaction/manage/2/disable', $edit, t('Confirm'));
+    $this->assertText('Disabled reaction rule Send an invoice notification e-mail.', 'Invoice email rule deactivated');
+  }
+
+  public function createEmptyOrder() {
+    $edit = array();
+    $this->drupalPost('admin/commerce/orders/add', $edit, t('Save order'));
+    $this->assertText(t('Order saved.'), 'Order has been created.');
+  }
+
+  public function completeOrder($order_id) {
+    $edit = array();
+    $edit['status'] = 'completed';
+    $this->drupalPost('admin/commerce/orders/' . $order_id . '/edit', $edit, t('Save order'));
+    $this->assertText(t('Order saved.'), 'Order has been completed.');
+  }
+
+  public function chooseNumberGenerationStrategy($strategy_id, $callback = NULL) {
+    $edit = array();
+    $edit['commerce_invoice_number_method'] = $strategy_id;
+    $this->drupalPost('admin/commerce/config/invoice', $edit, t('Save configuration'));
+    $this->assertText(t('The configuration options have been saved.'), 'Number generation strategy has been set to "' . $strategy_id . '"');
+  }
+
+  public function testSimpleIdNumberGeneration() {
+    $this->chooseNumberGenerationStrategy('[invoice_id]');
+    foreach (array(1 => 1, 2 => 2) as $order_id => $invoice_number) {
+      $this->createEmptyOrder();
+      // completing the order is supposed to create an invoice via rules
+      $this->completeOrder($order_id);
+      $this->drupalGet('admin/commerce/orders/' . $order_id . '/invoice');
+      $this->assertPattern('@Invoice number:\s*</div>\s*' . preg_quote($invoice_number, '@') . '\s@s');
+    }
+  }
+
+
+
+}

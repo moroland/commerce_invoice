@@ -16,3 +16,7 @@ files[] = includes/views/commerce_invoice.views.inc
 files[] = includes/views/handlers/commerce_invoice_handler_field_invoice.inc
 files[] = includes/views/handlers/commerce_invoice_handler_field_invoice_type.inc
 files[] = includes/views/handlers/commerce_invoice_handler_filter_invoice_type.inc
+
+; tests
+files[] = tests/number_generation.test
+
