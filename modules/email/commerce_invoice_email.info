@@ -1,7 +1,0 @@
-; $Id$
-name = Invoice Email
-description = Integrates Commerce Invoice with Commerce Email (2.x)
-package = Commerce (contrib)
-core = 7.x
-dependencies[] = commerce_invoice
-dependencies[] = commerce_email

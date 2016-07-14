@@ -1,22 +1,6 @@
-; $Id$
-name = Invoice
-description = Generate an invoice
-dependencies[] = rules
+name = Commerce invoice
+description = Generate invoices for Commerce orders
 dependencies[] = commerce_order
+dependencies[] = entity
 package = Commerce (contrib)
 core = 7.x
-
-; Module includes
-files[] = includes/commerce_invoice.controller.inc
-
-; Views includes
-files[] = includes/views/commerce_invoice.views.inc
-
-; Views handlers
-files[] = includes/views/handlers/commerce_invoice_handler_field_invoice.inc
-files[] = includes/views/handlers/commerce_invoice_handler_field_invoice_type.inc
-files[] = includes/views/handlers/commerce_invoice_handler_filter_invoice_type.inc
-
-; tests
-files[] = tests/number_generation.test
-

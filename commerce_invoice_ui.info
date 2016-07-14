@@ -1,11 +1,5 @@
-; $Id$
-name = Invoice UI
+name = Commerce Invoice UI
 description = Exposes invoice configuration
 package = Commerce (contrib)
 core = 7.x
-dependencies[] = contextual
-dependencies[] = field_ui
-dependencies[] = commerce
-dependencies[] = commerce_ui
 dependencies[] = commerce_invoice
-dependencies[] = views
