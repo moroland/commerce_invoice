@@ -24,6 +24,7 @@ class InvoiceController extends \EntityAPIController {
   public function save($entity, \DatabaseTransaction $transaction = NULL) {
     /** @var Invoice $entity */
     if (!isset($entity->invoice_number)) {
+      $transaction = isset($transaction) ? $transaction : db_transaction();
       $entity->invoice_number = $entity->getNumberStrategy()->getNext();
     }
 
