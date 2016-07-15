@@ -1,6 +1,8 @@
 <?php
 
-class CommerceInvoiceEntityMetadataController extends EntityDefaultMetadataController {
+namespace Drupal\commerce_invoice\Entity;
+
+class InvoiceMetadataController extends \EntityDefaultMetadataController {
 
   /**
    * {@inheritdoc}

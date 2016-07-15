@@ -26,9 +26,9 @@ function commerce_invoice_entity_info() {
         'label' => t('Invoice'),
       ),
     ),
-    'entity class' => 'CommerceInvoiceEntity',
-    'controller class' => 'CommerceInvoiceEntityController',
-    'metadata controller class' => 'CommerceInvoiceEntityMetadataController',
+    'entity class' => '\\Drupal\\commerce_invoice\\Entity\\Invoice',
+    'controller class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceController',
+    'metadata controller class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceMetadataController',
     'views controller class' => 'EntityDefaultViewsController',
     'access callback' => 'commerce_entity_access',
     'access arguments' => array(

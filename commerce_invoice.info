@@ -2,9 +2,6 @@ name = Commerce invoice
 description = Generate invoices for Commerce orders
 dependencies[] = commerce_order
 dependencies[] = entity
+dependencies[] = xautoload
 package = Commerce (contrib)
 core = 7.x
-
-files[] = includes/CommerceInvoiceEntity.inc
-files[] = includes/CommerceInvoiceEntityController.inc
-files[] = includes/CommerceInvoiceEntityMetadataController.inc

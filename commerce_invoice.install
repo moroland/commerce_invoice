@@ -9,6 +9,7 @@
  */
 function commerce_invoice_schema() {
   $schema = array();
+
   $schema['commerce_invoice'] = array(
     'description' => 'The base table for invoices.',
     'fields' => array(
@@ -167,6 +168,31 @@ function commerce_invoice_schema() {
         'columns' => array('invoice_id' => 'invoice_id'),
       ),
     ),
+  );
+
+  $schema['commerce_invoice_number'] = array(
+    'description' => 'Stores the last sequential invoice number for each numbering strategy.',
+    'fields' => array(
+      'strategy' => array(
+        'description' => 'The invoice number strategy.',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ),
+      'key' => array(
+        'description' => 'The key to differentiate sequential numbers in this sequence.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'last' => array(
+        'description' => 'The last invoice number generated via this strategy with this key.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('strategy', 'key'),
   );
 
   return $schema;
