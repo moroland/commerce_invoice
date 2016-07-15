@@ -30,6 +30,12 @@ function commerce_invoice_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'invoice_status' => array(
+        'description' => 'The invoice status.',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ),
       'revision_id' => array(
         'description' => 'The revision ID for this invoice.',
         'type' => 'int',
@@ -46,8 +52,8 @@ function commerce_invoice_schema() {
       'uid' => array(
         'description' => 'The {users}.uid that owns this invoice.',
         'type' => 'int',
+        'unsigned' => TRUE,
         'not null' => TRUE,
-        'default' => 0,
       ),
       'order_id' => array(
         'description' => 'The order ID.',
@@ -74,7 +80,93 @@ function commerce_invoice_schema() {
         'default' => 0,
       ),
     ),
-    'primary key' => array('invoice_id')
+    'primary key' => array('invoice_id'),
+    'indexes' => array(
+      'uid' => array('uid'),
+      'order_revision' => array('order_id', 'order_revision_id'),
+    ),
+    'foreign keys' => array(
+      'order' => array(
+        'table' => 'commerce_order',
+        'columns' => array('order_id' => 'order_id'),
+      ),
+      'order_revision' => array(
+        'table' => 'commerce_order_revision',
+        'columns' => array(
+          'order_id' => 'order_id',
+          'order_revision_id' => 'revision_id',
+        ),
+      ),
+      'owner' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+
+  $schema['commerce_invoice_revision'] = array(
+    'description' => 'Stores information about each saved revision of an invoice.',
+    'fields' => array(
+      'invoice_id' => array(
+        'description' => 'The {commerce_invoice}.invoice_id of the invoice this revision belongs to.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_id' => array(
+        'description' => 'The primary identifier for this revision.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'invoice_date' => array(
+        'description' => 'The invoice date for this revision.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'invoice_status' => array(
+        'description' => 'The invoice status for this revision.',
+        'type' => 'varchar',
+        'length' => 100,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The invoice owner for this revision.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'revision_created' => array(
+        'description' => 'The Unix timestamp when the revision was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'revision_uid' => array(
+        'description' => 'The {users}.uid of the user who created the revision.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'log' => array(
+        'description' => 'A log message for the revision.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('revision_id'),
+    'indexes' => array(
+      'invoice_id' => array('invoice_id'),
+    ),
+    'foreign keys' => array(
+      'invoice' => array(
+        'table' => 'commerce_invoice',
+        'columns' => array('invoice_id' => 'invoice_id'),
+      ),
+    ),
   );
 
   return $schema;
