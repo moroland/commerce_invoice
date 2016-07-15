@@ -82,6 +82,9 @@ function commerce_invoice_schema() {
       ),
     ),
     'primary key' => array('invoice_id'),
+    'unique keys' => array(
+      'invoice_number' => array('invoice_number'),
+    ),
     'indexes' => array(
       'uid' => array('uid'),
       'order_revision' => array('order_id', 'order_revision_id'),
