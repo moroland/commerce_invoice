@@ -22,18 +22,7 @@ abstract class StrategyBase implements StrategyInterface {
   public function getNext() {
     $key = $this->getKey();
 
-    return new InvoiceNumber($this->getNextSequence($key), $key, $this);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function format(InvoiceNumber $number) {
-    if (!strlen($number->getKey())) {
-      return (string) $number->getSequence();
-    }
-
-    return $number->getKey() . '--' . $number->getSequence();
+    return new InvoiceNumber($this->getNextSequence($key), $key, $this->name);
   }
 
   /**

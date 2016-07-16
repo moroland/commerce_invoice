@@ -70,7 +70,7 @@ class Invoice extends \Entity {
       return NULL;
     }
 
-    return new InvoiceNumber($this->number_sequence, $this->number_key, $this->getNumberStrategy());
+    return new InvoiceNumber($this->number_sequence, $this->number_key, $this->number_strategy);
   }
 
 }

@@ -20,13 +20,4 @@ interface StrategyInterface {
    */
   public function getNext();
 
-  /**
-   * Formats an invoice number as a string.
-   *
-   * @param InvoiceNumber $number
-   *
-   * @return string
-   */
-  public function format(InvoiceNumber $number);
-
 }

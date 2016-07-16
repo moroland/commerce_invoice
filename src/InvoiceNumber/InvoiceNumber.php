@@ -2,25 +2,23 @@
 
 namespace Drupal\commerce_invoice\InvoiceNumber;
 
-use Drupal\commerce_invoice\InvoiceNumber\Strategy\StrategyInterface;
-
 class InvoiceNumber {
 
   protected $sequence;
   protected $key;
-  protected $strategy;
+  protected $strategyName;
 
   /**
    * Constructor.
    *
-   * @param int               $sequence
-   * @param string            $key
-   * @param StrategyInterface $strategy
+   * @param int    $sequence
+   * @param string $key
+   * @param string $strategyName
    */
-  public function __construct($sequence, $key, StrategyInterface $strategy) {
+  public function __construct($sequence, $key, $strategyName) {
     $this->sequence = $sequence;
     $this->key = $key;
-    $this->strategy = $strategy;
+    $this->strategyName = $strategyName;
   }
 
   /**
@@ -41,7 +39,7 @@ class InvoiceNumber {
    * @return string
    */
   public function getStrategyName() {
-    return $this->strategy->getName();
+    return $this->strategyName;
   }
 
   /**
@@ -50,6 +48,10 @@ class InvoiceNumber {
    * @return string
    */
   public function __toString() {
-    return $this->strategy->format($this);
+    if (!strlen($this->key)) {
+      return (string) $this->sequence;
+    }
+
+    return $this->key . '--' . $this->sequence;
   }
 }
