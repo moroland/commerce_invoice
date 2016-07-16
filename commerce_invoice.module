@@ -35,6 +35,10 @@ function commerce_invoice_entity_info() {
       'user key' => 'uid',
       'access tag' => 'commerce_invoice_access',
     ),
+    'permission labels' => array(
+      'singular' => t('invoice'),
+      'plural' => t('invoices'),
+    ),
   );
 
   return $entities;
