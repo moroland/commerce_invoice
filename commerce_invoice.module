@@ -19,7 +19,7 @@ function commerce_invoice_entity_info() {
     'entity keys' => array(
       'id' => 'invoice_id',
       'bundle' => 'type',
-      'label' => 'invoice_number',
+      'revision' => 'revision_id',
     ),
     'bundles' => array(
       'commerce_invoice' => array(
