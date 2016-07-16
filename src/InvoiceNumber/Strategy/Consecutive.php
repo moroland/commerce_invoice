@@ -15,7 +15,7 @@ class Consecutive extends StrategyBase {
    * {@inheritdoc}
    */
   protected function getKey() {
-    return NULL;
+    return '';
   }
 
 }

@@ -29,7 +29,7 @@ function commerce_invoice_schema() {
         'description' => 'A key used to differentiate sequential invoice numbers.',
         'type' => 'varchar',
         'length' => 100,
-        'not null' => FALSE,
+        'not null' => TRUE,
       ),
       'number_strategy' => array(
         'description' => 'The strategy used to calculate the invoice number.',

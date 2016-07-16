@@ -14,7 +14,7 @@ class InvoiceNumber {
    * Constructor.
    *
    * @param int               $sequence
-   * @param string|NULL       $key
+   * @param string            $key
    * @param StrategyInterface $strategy
    */
   public function __construct($sequence, $key, StrategyInterface $strategy) {
@@ -31,7 +31,7 @@ class InvoiceNumber {
   }
 
   /**
-   * @return NULL|string
+   * @return string
    */
   public function getKey() {
     return $this->key;

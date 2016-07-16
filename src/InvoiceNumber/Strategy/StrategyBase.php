@@ -9,9 +9,10 @@ abstract class StrategyBase implements StrategyInterface {
   /**
    * Returns the key which differentiates sequential numbers.
    *
-   * @return string|NULL
+   * @return string
    *   For example, a monthly strategy would return '2016-07'. A strategy that
-   *   wants the sequence to increment sequentially forever would return NULL.
+   *   wants the sequence to increment sequentially forever would return an
+   *   empty string.
    */
   abstract protected function getKey();
 
@@ -28,7 +29,7 @@ abstract class StrategyBase implements StrategyInterface {
    * {@inheritdoc}
    */
   public function format(InvoiceNumber $number) {
-    if ($number->getKey() === NULL) {
+    if (!strlen($number->getKey())) {
       return (string) $number->getSequence();
     }
 
@@ -38,7 +39,7 @@ abstract class StrategyBase implements StrategyInterface {
   /**
    * Calculates the next sequential number for this strategy and key.
    *
-   * @param string|NULL $key
+   * @param string $key
    *
    * @return int
    */
@@ -51,15 +52,19 @@ abstract class StrategyBase implements StrategyInterface {
   /**
    * Finds the last invoice number generated for this strategy and key.
    *
-   * @param string|NULL $key
+   * @param string $key
    *
    * @return int|FALSE
    *   The last number or FALSE if no previous number is found.
    */
   protected function getLastSequence($key) {
-    $query = 'SELECT number_sequence FROM {commerce_invoice} WHERE number_strategy = :strategy AND number_key = :key ORDER BY number_sequence DESC';
-    $params = array(':strategy' => $this->getName(), ':key' => $key);
-    $last = db_query_range($query, 0, 1, $params)->fetchField();
+    $query = db_select('commerce_invoice', 'ci')
+      ->fields('ci', array('number_sequence'))
+      ->condition('number_strategy', $this->getName())
+      ->condition('number_key', $key)
+      ->orderBy('number_sequence', 'DESC')
+      ->range(0, 1);
+    $last = $query->execute()->fetchField();
 
     return $last !== FALSE ? (int) $last : FALSE;
   }
