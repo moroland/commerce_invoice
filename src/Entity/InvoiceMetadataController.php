@@ -22,7 +22,6 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'type' => 'token',
       'label' => t('Type'),
       'description' => t('The invoice type'),
-      'setter callback' => 'entity_property_verbatim_set',
       'required' => TRUE,
       'schema field' => 'type',
     );
@@ -30,7 +29,6 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'type' => 'user',
       'label' => t('Owner'),
       'description' => t('The owner of the invoice.'),
-      'setter callback' => 'entity_property_verbatim_set',
       'required' => TRUE,
       'schema field' => 'uid',
     );
@@ -38,7 +36,6 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'type' => 'commerce_order',
       'label' => t('Order'),
       'description' => t('The order for the invoice.'),
-      'setter callback' => 'entity_property_verbatim_set',
       'required' => TRUE,
       'schema field' => 'order_id',
     );
@@ -54,7 +51,6 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'label' => t('Status'),
       'description' => t('The invoice status.'),
       'options list' => 'commerce_invoice_statuses',
-      'setter callback' => 'entity_property_verbatim_set',
       'required' => TRUE,
       'schema field' => 'invoice_status',
     );
@@ -62,27 +58,26 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'type' => 'date',
       'label' => t('Date'),
       'description' => t('The invoice date.'),
+      'schema field' => 'invoice_date',
     );
     $properties['invoice_number'] = array(
       'type' => 'text',
       'label' => t('Invoice number'),
       'description' => t('The invoice number.'),
-      'getter callback' => get_class() . '::invoiceNumberGetter',
-    );
-    $properties['number_strategy'] = array(
-      'type' => 'token',
-      'label' => t('Number strategy'),
-      'description' => t('The strategy used to calculate the invoice number.'),
+      'getter callback' => array($this, 'invoiceNumberGetter'),
+      'computed' => TRUE,
     );
     $properties['created'] = array(
       'type' => 'date',
       'label' => t('Created'),
       'description' => t('The date when the invoice was created.'),
+      'schema field' => 'created',
     );
     $properties['changed'] = array(
       'type' => 'date',
       'label' => t('Changed'),
       'description' => t('The date when the invoice was last modified.'),
+      'schema field' => 'changed',
     );
 
     return $info;
@@ -95,7 +90,7 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
    *
    * @return string
    */
-  public static function invoiceNumberGetter(Invoice $invoice) {
+  public function invoiceNumberGetter(Invoice $invoice) {
     return $invoice->getInvoiceNumber()->__toString();
   }
 
