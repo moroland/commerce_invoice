@@ -57,13 +57,9 @@ abstract class StrategyBase implements StrategyInterface {
    *   The last number or FALSE if no previous number is found.
    */
   protected function getLastSequence($key) {
-    $query = db_select('commerce_invoice')
-      ->fields('commerce_invoice', array('invoice_number'))
-      ->condition('number_strategy', $this->getName())
-      ->condition('number_key', $key)
-      ->orderBy('number_sequence', 'DESC')
-      ->range(0, 1);
-    $last = $query->execute()->fetchField();
+    $query = 'SELECT number_sequence FROM {commerce_invoice} WHERE number_strategy = :strategy AND number_key = :key ORDER BY number_sequence DESC';
+    $params = array(':strategy' => $this->getName(), ':key' => $key);
+    $last = db_query_range($query, 0, 1, $params)->fetchField();
 
     return $last !== FALSE ? (int) $last : FALSE;
   }
