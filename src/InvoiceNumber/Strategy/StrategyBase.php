@@ -33,7 +33,7 @@ abstract class StrategyBase implements StrategyInterface {
       return (string) $number->getSequence();
     }
 
-    return $number->getKey() . '-' . $number->getSequence();
+    return $number->getKey() . '--' . $number->getSequence();
   }
 
   /**

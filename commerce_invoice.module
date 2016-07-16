@@ -101,6 +101,7 @@ function commerce_invoice_statuses() {
 function commerce_invoice_number_strategies() {
   $strategies = array(
     new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Consecutive(),
+    new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Daily(),
     new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Monthly(),
     new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Yearly(),
   );
