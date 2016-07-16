@@ -23,7 +23,7 @@ class InvoiceController extends \EntityAPIController {
    */
   public function save($entity, \DatabaseTransaction $transaction = NULL) {
     /** @var Invoice $entity */
-    if (!$entity->hasInvoiceNumber()) {
+    if (!$entity->getInvoiceNumber()) {
       $transaction = isset($transaction) ? $transaction : db_transaction();
       $strategy = $entity->getNumberStrategy();
       $lock_name = 'commerce_invoice_nr_' . $strategy->getName();

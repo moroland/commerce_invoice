@@ -58,7 +58,7 @@ function commerce_invoice_access($op, $invoice = NULL, $account = NULL) {
 }
 
 /**
- * Implementation of hook_query_commerce_order_access_alter().
+ * Implements hook_query_commerce_order_access_alter().
  */
 function commerce_invoice_query_commerce_invoice_access_alter(QueryAlterableInterface $query) {
   commerce_entity_access_query_alter($query, 'commerce_invoice');

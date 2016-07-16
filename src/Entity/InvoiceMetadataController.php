@@ -2,8 +2,6 @@
 
 namespace Drupal\commerce_invoice\Entity;
 
-use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
-
 class InvoiceMetadataController extends \EntityDefaultMetadataController {
 
   /**
@@ -91,20 +89,14 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
   }
 
   /**
-   * Getter callback for an invoice number.
+   * Getter callback to retrieve an invoice number as a string.
    *
    * @param Invoice $invoice
    *
    * @return string
    */
   public static function invoiceNumberGetter(Invoice $invoice) {
-    $number = new InvoiceNumber(
-      $invoice->number_sequence,
-      $invoice->number_key,
-      $invoice->getNumberStrategy()
-    );
-
-    return $number->__toString();
+    return $invoice->getInvoiceNumber()->__toString();
   }
 
 }

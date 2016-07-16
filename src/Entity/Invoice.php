@@ -26,6 +26,8 @@ class Invoice extends \Entity {
   public $log;
 
   /**
+   * Returns the invoice number strategy for this invoice.
+   *
    * @todo bundle settings logic
    *
    * @return StrategyInterface
@@ -42,6 +44,8 @@ class Invoice extends \Entity {
   }
 
   /**
+   * Sets the invoice number.
+   *
    * @param InvoiceNumber $number
    */
   public function setInvoiceNumber(InvoiceNumber $number) {
@@ -51,10 +55,16 @@ class Invoice extends \Entity {
   }
 
   /**
-   * @return bool
+   * Returns the invoice number.
+   *
+   * @return InvoiceNumber|NULL
    */
-  public function hasInvoiceNumber() {
-    return isset($this->number_sequence);
+  public function getInvoiceNumber() {
+    if (!isset($this->number_sequence)) {
+      return NULL;
+    }
+
+    return new InvoiceNumber($this->number_sequence, $this->number_key, $this->getNumberStrategy());
   }
 
 }
