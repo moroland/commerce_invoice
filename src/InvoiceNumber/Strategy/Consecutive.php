@@ -2,13 +2,13 @@
 
 namespace Drupal\commerce_invoice\InvoiceNumber\Strategy;
 
-class Infinite extends DatabaseStrategyBase {
+class Consecutive extends StrategyBase {
 
   /**
    * {@inheritdoc}
    */
-  protected function getName() {
-    return 'infinite';
+  public function getName() {
+    return 'consecutive';
   }
 
   /**

@@ -88,3 +88,19 @@ function commerce_invoice_statuses() {
 
   return $statuses;
 }
+
+/**
+ * Returns a list of invoice number strategies.
+ *
+ * @return \Drupal\commerce_invoice\InvoiceNumber\Strategy\StrategyInterface[]
+ */
+function commerce_invoice_number_strategies() {
+  $strategies = array(
+    new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Consecutive(),
+    new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Monthly(),
+    new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Yearly(),
+  );
+  drupal_alter(__FUNCTION__, $strategies);
+
+  return $strategies;
+}

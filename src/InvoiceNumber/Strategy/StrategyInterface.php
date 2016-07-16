@@ -2,17 +2,31 @@
 
 namespace Drupal\commerce_invoice\InvoiceNumber\Strategy;
 
+use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
+
 interface StrategyInterface {
 
   /**
-   * Get the next invoice number for this strategy.
-   *
-   * @param bool $save
-   *   Whether to update the last saved sequential number (default: TRUE). Set
-   *   FALSE to find the next number without changing anything.
+   * Returns the name of this strategy.
    *
    * @return string
    */
-  public function getNext($save = TRUE);
+  public function getName();
+
+  /**
+   * Returns the next invoice number for this strategy.
+   *
+   * @return InvoiceNumber
+   */
+  public function getNext();
+
+  /**
+   * Formats an invoice number as a string.
+   *
+   * @param InvoiceNumber $number
+   *
+   * @return string
+   */
+  public function format(InvoiceNumber $number);
 
 }

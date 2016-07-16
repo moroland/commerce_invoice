@@ -2,12 +2,12 @@
 
 namespace Drupal\commerce_invoice\InvoiceNumber\Strategy;
 
-class Yearly extends DatabaseStrategyBase {
+class Yearly extends StrategyBase {
 
   /**
    * {@inheritdoc}
    */
-  protected function getName() {
+  public function getName() {
     return 'yearly';
   }
 

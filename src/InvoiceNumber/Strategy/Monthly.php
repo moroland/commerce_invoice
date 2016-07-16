@@ -2,12 +2,12 @@
 
 namespace Drupal\commerce_invoice\InvoiceNumber\Strategy;
 
-class Monthly extends DatabaseStrategyBase {
+class Monthly extends StrategyBase {
 
   /**
    * {@inheritdoc}
    */
-  protected function getName() {
+  public function getName() {
     return 'monthly';
   }
 

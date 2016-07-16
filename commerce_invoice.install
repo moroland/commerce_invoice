@@ -19,10 +19,22 @@ function commerce_invoice_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'invoice_number' => array(
-        'description' => 'The invoice number displayed to the customer.',
+      'number_sequence' => array(
+        'description' => 'The sequential invoice number.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'number_key' => array(
+        'description' => 'A key used to differentiate sequential invoice numbers.',
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 100,
+        'not null' => FALSE,
+      ),
+      'number_strategy' => array(
+        'description' => 'The strategy used to calculate the invoice number.',
+        'type' => 'varchar',
+        'length' => 100,
         'not null' => TRUE,
       ),
       'invoice_date' => array(
@@ -83,7 +95,7 @@ function commerce_invoice_schema() {
     ),
     'primary key' => array('invoice_id'),
     'unique keys' => array(
-      'invoice_number' => array('invoice_number'),
+      'invoice_number' => array('number_strategy', 'number_key', 'number_sequence'),
     ),
     'indexes' => array(
       'uid' => array('uid'),
@@ -171,31 +183,6 @@ function commerce_invoice_schema() {
         'columns' => array('invoice_id' => 'invoice_id'),
       ),
     ),
-  );
-
-  $schema['commerce_invoice_number'] = array(
-    'description' => 'Stores the last sequential invoice number for each numbering strategy.',
-    'fields' => array(
-      'strategy' => array(
-        'description' => 'The invoice number strategy.',
-        'type' => 'varchar',
-        'length' => 100,
-        'not null' => TRUE,
-      ),
-      'key' => array(
-        'description' => 'The key to differentiate sequential numbers in this sequence.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => FALSE,
-      ),
-      'last' => array(
-        'description' => 'The last invoice number generated via this strategy with this key.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array('strategy', 'key'),
   );
 
   return $schema;
