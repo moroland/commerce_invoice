@@ -36,7 +36,7 @@ class InvoiceController extends \EntityAPIController {
       $entity->uid = $GLOBALS['user']->uid;
     }
 
-    if (!$entity->getInvoiceNumber()) {
+    if (!$entity->hasInvoiceNumber()) {
       $transaction = isset($transaction) ? $transaction : db_transaction();
       $strategy = $entity->getNumberStrategy();
       $lock_name = 'commerce_invoice_nr_' . $strategy->getName();

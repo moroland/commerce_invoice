@@ -54,6 +54,13 @@ class Invoice extends \Entity {
   }
 
   /**
+   * @return bool
+   */
+  public function hasInvoiceNumber() {
+    return isset($this->number_sequence);
+  }
+
+  /**
    * Returns the invoice number.
    *
    * @return InvoiceNumber|NULL
