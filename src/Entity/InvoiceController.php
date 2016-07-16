@@ -23,6 +23,19 @@ class InvoiceController extends \EntityAPIController {
    */
   public function save($entity, \DatabaseTransaction $transaction = NULL) {
     /** @var Invoice $entity */
+    if (empty($entity->created) || empty($entity->invoice_id)) {
+      $entity->created = REQUEST_TIME;
+    }
+    if (empty($entity->changed)) {
+      $entity->changed = REQUEST_TIME;
+    }
+    if (empty($entity->invoice_date)) {
+      $entity->invoice_date = $entity->created;
+    }
+    if (empty($entity->uid)) {
+      $entity->uid = $GLOBALS['user']->uid;
+    }
+
     if (!$entity->getInvoiceNumber()) {
       $transaction = isset($transaction) ? $transaction : db_transaction();
       $strategy = $entity->getNumberStrategy();

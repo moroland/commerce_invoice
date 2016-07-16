@@ -17,8 +17,7 @@ class Invoice extends \Entity {
   public $number_key;
   public $uid;
   public $invoice_date;
-  public $invoice_status;
-  public $quantity;
+  public $invoice_status = 'pending';
   public $created;
   public $changed;
   public $revision_created;
