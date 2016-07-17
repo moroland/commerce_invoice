@@ -141,7 +141,7 @@ function commerce_invoice_number_strategies() {
  *
  * @param string $name
  *
- * @return object|FALSE
+ * @return \Drupal\commerce_invoice\Entity\InvoiceNumberPattern|FALSE
  */
 function commerce_invoice_number_pattern_load($name) {
   $patterns = entity_load_multiple_by_name('commerce_invoice_number_pattern', [$name]);

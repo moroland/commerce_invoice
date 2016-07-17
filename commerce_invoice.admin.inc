@@ -5,12 +5,12 @@
  *
  * @param array $form
  * @param array &$form_state
- * @param object $pattern
+ * @param \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern
  * @param string $op
  *
  * @return array
  */
-function commerce_invoice_number_pattern_form($form, &$form_state, $pattern, $op = 'edit') {
+function commerce_invoice_number_pattern_form($form, &$form_state, \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern, $op = 'edit') {
   $form['label'] = array(
     '#title' => t('Name'),
     '#type' => 'textfield',
