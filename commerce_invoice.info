@@ -1,7 +1,10 @@
 name = Commerce invoice
 description = Generate invoices for Commerce orders
-dependencies[] = commerce_order
-dependencies[] = entity
-dependencies[] = xautoload
 package = Commerce (contrib)
 core = 7.x
+php = 5.5.9
+
+dependencies[] = commerce_order
+dependencies[] = ctools
+dependencies[] = entity
+dependencies[] = xautoload

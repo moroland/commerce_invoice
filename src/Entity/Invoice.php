@@ -33,10 +33,10 @@ class Invoice extends \Entity {
    */
   public function getNumberStrategy() {
     $strategyName = $this->number_strategy ?: 'monthly';
-    foreach (commerce_invoice_number_strategies() as $strategy) {
-      if ($strategy->getName() === $strategyName) {
-        return $strategy;
-      }
+
+    $strategies = commerce_invoice_number_strategies();
+    if (isset($strategies[$strategyName])) {
+      return $strategies[$strategyName];
     }
 
     throw new \RuntimeException('Invoice number strategy not found: ' . $strategyName);

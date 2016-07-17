@@ -14,6 +14,13 @@ interface StrategyInterface {
   public function getName();
 
   /**
+   * Sets the name of this strategy.
+   *
+   * @param string $name
+   */
+  public function setName($name);
+
+  /**
    * Returns the next invoice number for this strategy.
    *
    * @return InvoiceNumber

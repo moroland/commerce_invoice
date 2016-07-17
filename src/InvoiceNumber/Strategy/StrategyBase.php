@@ -6,6 +6,8 @@ use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
 
 abstract class StrategyBase implements StrategyInterface {
 
+  protected $name = 'unknown';
+
   /**
    * Returns the key which differentiates sequential numbers.
    *
@@ -15,6 +17,20 @@ abstract class StrategyBase implements StrategyInterface {
    *   empty string.
    */
   abstract protected function getKey();
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setName($name) {
+    $this->name = $name;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getName() {
+    return $this->name;
+  }
 
   /**
    * {@inheritdoc}
