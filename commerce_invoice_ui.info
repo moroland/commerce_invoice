@@ -1,5 +1,0 @@
-name = Commerce Invoice UI
-description = Exposes invoice configuration
-package = Commerce (contrib)
-core = 7.x
-dependencies[] = commerce_invoice

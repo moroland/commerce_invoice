@@ -185,5 +185,45 @@ function commerce_invoice_schema() {
     ),
   );
 
+  $schema['commerce_invoice_number_pattern'] = array(
+    'description' => 'Stores configurable invoice number patterns.',
+    'fields' => array(
+      'name' => array(
+        'description' => 'The pattern machine name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'A human-readable label for the pattern.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'pattern' => array(
+        'description' => 'The invoice number pattern.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+    ),
+    'primary key' => array('name'),
+  );
+
   return $schema;
 }

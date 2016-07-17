@@ -52,6 +52,10 @@ class InvoiceNumber {
       return (string) $this->sequence;
     }
 
+    if (strpos($this->key, '[sequence]') !== FALSE) {
+      return str_replace('[sequence]', $this->sequence, $this->key);
+    }
+
     return $this->key . '--' . $this->sequence;
   }
 }

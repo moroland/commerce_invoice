@@ -41,7 +41,34 @@ function commerce_invoice_entity_info() {
     ),
   );
 
+  $entities['commerce_invoice_number_pattern'] = array(
+    'label' => t('Invoice number pattern'),
+    'base table' => 'commerce_invoice_number_pattern',
+    'controller class' => 'EntityAPIControllerExportable',
+    'entity class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceNumberPattern',
+    'entity keys' => array(
+      'id' => 'name',
+      'name' => 'name',
+      'label' => 'label',
+      'status' => 'status',
+    ),
+    'exportable' => TRUE,
+    'module' => 'commerce_invoice',
+    'access callback' => 'commerce_invoice_number_pattern_access',
+    'admin ui' => array(
+      'path' => 'admin/commerce/config/invoice-numbers',
+      'file' => 'commerce_invoice.admin.inc',
+    ),
+  );
+
   return $entities;
+}
+
+/**
+ * @return bool
+ */
+function commerce_invoice_number_pattern_access() {
+  return user_access('administer commerce_invoice entities');
 }
 
 /**
@@ -102,42 +129,56 @@ function commerce_invoice_statuses() {
 function commerce_invoice_number_strategies() {
   $strategies = array();
 
-  ctools_include('plugins');
-  $plugins = ctools_get_plugins('commerce_invoice', 'invoice_number_strategy');
-  foreach ($plugins as $name => $plugin) {
-    $class_name = $plugin['class'];
-    if (class_exists($plugin['class'])) {
-      $strategy = new $class_name();
-      if ($strategy instanceof \Drupal\commerce_invoice\InvoiceNumber\Strategy\StrategyInterface) {
-        $strategy->setName($name);
-        $strategies[$name] = $strategy;
-        continue;
-      }
-    }
-    watchdog('commerce_invoice', 'Invalid plugin class: @class', ['@class' => $plugin['class']], WATCHDOG_ERROR);
+  foreach (entity_load('commerce_invoice_number_pattern') as $pattern) {
+    $strategies[$pattern->name] = new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Pattern($pattern);
   }
 
   return $strategies;
 }
 
 /**
- * Implements hook_ctools_plugin_type().
+ * Load an invoice number pattern by machine name.
+ *
+ * @param string $name
+ *
+ * @return object|FALSE
  */
-function commerce_invoice_ctools_plugin_type() {
-  return array(
-    'invoice_number_strategy' => array(
-      'label' => t('Invoice number strategy'),
-      'cache' => TRUE,
-      'classes' => array('class'),
-    ),
-  );
+function commerce_invoice_number_pattern_load($name) {
+  $patterns = entity_load_multiple_by_name('commerce_invoice_number_pattern', [$name]);
+
+  return reset($patterns);
 }
 
 /**
- * Implements hook_ctools_plugin_directory().
+ * Implements hook_default_commerce_invoice_number_pattern().
  */
-function commerce_invoice_ctools_plugin_directory($module, $plugin) {
-  if ($module === 'commerce_invoice') {
-    return 'includes/plugins/' . $plugin;
-  }
+function commerce_invoice_default_commerce_invoice_number_pattern() {
+  $entity_type = 'commerce_invoice_number_pattern';
+  $patterns = array();
+
+  $patterns['consecutive'] = entity_create($entity_type, [
+    'name' => 'consecutive',
+    'label' => 'Consecutive',
+    'pattern' => '',
+  ]);
+
+  $patterns['daily'] = entity_create($entity_type, [
+    'name' => 'daily',
+    'label' => 'Daily',
+    'pattern' => '[date:custom:Y]-[date:custom:m]-[date:custom:d]',
+  ]);
+
+  $patterns['monthly'] = entity_create($entity_type, [
+    'name' => 'monthly',
+    'label' => 'Monthly',
+    'pattern' => '[date:custom:Y]-[date:custom:m]',
+  ]);
+
+  $patterns['yearly'] = entity_create($entity_type, [
+    'name' => 'yearly',
+    'label' => 'Yearly',
+    'pattern' => '[date:custom:Y]',
+  ]);
+
+  return $patterns;
 }
