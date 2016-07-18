@@ -6,19 +6,19 @@ class InvoiceNumber {
 
   protected $sequence;
   protected $key;
-  protected $strategyName;
+  protected $patternName;
 
   /**
    * Constructor.
    *
    * @param int    $sequence
    * @param string $key
-   * @param string $strategyName
+   * @param string $patternName
    */
-  public function __construct($sequence, $key, $strategyName) {
+  public function __construct($sequence, $key, $patternName) {
     $this->sequence = $sequence;
     $this->key = $key;
-    $this->strategyName = $strategyName;
+    $this->patternName = $patternName;
   }
 
   /**
@@ -38,7 +38,7 @@ class InvoiceNumber {
   /**
    * @return string
    */
-  public function getStrategyName() {
-    return $this->strategyName;
+  public function getPatternName() {
+    return $this->patternName;
   }
 }

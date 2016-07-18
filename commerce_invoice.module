@@ -55,9 +55,10 @@ function commerce_invoice_entity_info() {
     'exportable' => TRUE,
     'module' => 'commerce_invoice',
     'access callback' => 'commerce_invoice_number_pattern_access',
+    'views controller class' => 'EntityDefaultViewsController',
     'admin ui' => array(
       'path' => 'admin/commerce/config/invoice-numbers',
-      'file' => 'includes/commerce_invoice.admin.inc',
+      'file' => 'commerce_invoice.admin.inc',
     ),
   );
 
@@ -121,22 +122,6 @@ function commerce_invoice_statuses() {
 }
 
 /**
- * Returns a list of invoice number strategies.
- *
- * @return \Drupal\commerce_invoice\InvoiceNumber\Strategy\StrategyInterface[]
- *   An array of invoice number strategies, keyed by name.
- */
-function commerce_invoice_number_strategies() {
-  $strategies = array();
-
-  foreach (entity_load('commerce_invoice_number_pattern') as $pattern) {
-    $strategies[$pattern->name] = new \Drupal\commerce_invoice\InvoiceNumber\Strategy\Pattern($pattern);
-  }
-
-  return $strategies;
-}
-
-/**
  * Load an invoice number pattern by machine name.
  *
  * @param string $name
@@ -191,10 +176,18 @@ function commerce_invoice_theme() {
     'commerce_invoice_number' => array(
       'variables' => array(
         'invoice_number' => NULL,
-        'pattern' => NULL,
+        'key' => NULL,
+        'pattern_name' => NULL,
         'sequence' => NULL,
       ),
-      'file' => 'includes/commerce_invoice.theme.inc',
+      'file' => 'commerce_invoice.theme.inc',
     ),
   );
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function commerce_invoice_views_api() {
+  return array('api' => 3);
 }

@@ -14,7 +14,8 @@ function template_preprocess_commerce_invoice_number(array &$variables) {
     && $variables['invoice_number'] instanceof \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber) {
     /** @var \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber $number */
     $number = $variables['invoice_number'];
-    $variables['pattern'] = $number->getKey();
+    $variables['key'] = $number->getKey();
+    $variables['pattern_name'] = $number->getPatternName();
     $variables['sequence'] = $number->getSequence();
   }
 }
@@ -25,7 +26,7 @@ function template_preprocess_commerce_invoice_number(array &$variables) {
  * @see template_preprocess_commerce_invoice_number()
  *
  * @param array $variables
- *   An array of variables containing 'sequence' and 'key'.
+ *   An array of variables containing 'sequence', 'key', and 'pattern_name'.
  *
  * @return string
  *   A sanitized string.
@@ -35,13 +36,15 @@ function theme_commerce_invoice_number(array $variables) {
     return '';
   }
 
-  if (!strlen($variables['pattern'])) {
-    return (string) $variables['sequence'];
+  if (!strlen($variables['key'])) {
+    $invoice_number = (string) $variables['sequence'];
+  }
+  elseif (strpos($variables['key'], '[sequence]') !== FALSE) {
+    $invoice_number = str_replace('[sequence]', $variables['sequence'], $variables['key']);
+  }
+  else {
+    $invoice_number = $variables['key'] . '_' . $variables['sequence'];
   }
 
-  if (strpos($variables['pattern'], '[sequence]') !== FALSE) {
-    return str_replace('[sequence]', $variables['sequence'], $variables['pattern']);
-  }
-
-  return $variables['pattern'] . '--' . $variables['sequence'];
+  return check_plain($invoice_number);
 }

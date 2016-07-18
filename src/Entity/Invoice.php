@@ -3,7 +3,6 @@
 namespace Drupal\commerce_invoice\Entity;
 
 use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
-use Drupal\commerce_invoice\InvoiceNumber\Strategy\StrategyInterface;
 
 class Invoice extends \Entity {
 
@@ -12,7 +11,7 @@ class Invoice extends \Entity {
   public $type = 'commerce_invoice';
   public $order_id;
   public $order_revision_id;
-  public $number_strategy;
+  public $number_pattern;
   public $number_sequence;
   public $number_key;
   public $uid;
@@ -25,21 +24,18 @@ class Invoice extends \Entity {
   public $log;
 
   /**
-   * Returns the invoice number strategy for this invoice.
+   * Returns the invoice number pattern for this invoice.
    *
    * @todo bundle settings logic
    *
-   * @return StrategyInterface
+   * @return InvoiceNumberPattern
    */
-  public function getNumberStrategy() {
-    $strategyName = $this->number_strategy ?: 'monthly';
-
-    $strategies = commerce_invoice_number_strategies();
-    if (isset($strategies[$strategyName])) {
-      return $strategies[$strategyName];
+  public function getNumberPattern() {
+    if ($pattern = commerce_invoice_number_pattern_load($this->number_pattern)) {
+      return $pattern;
     }
 
-    throw new \RuntimeException('Invoice number strategy not found: ' . $strategyName);
+    throw new \RuntimeException('Invoice number pattern not found: ' . $this->number_pattern);
   }
 
   /**
@@ -50,7 +46,7 @@ class Invoice extends \Entity {
   public function setInvoiceNumber(InvoiceNumber $number) {
     $this->number_key = $number->getKey();
     $this->number_sequence = $number->getSequence();
-    $this->number_strategy = $number->getStrategyName();
+    $this->number_pattern = $number->getPatternName();
   }
 
   /**
@@ -70,7 +66,7 @@ class Invoice extends \Entity {
       return NULL;
     }
 
-    return new InvoiceNumber($this->number_sequence, $this->number_key, $this->number_strategy);
+    return new InvoiceNumber($this->number_sequence, $this->number_key, $this->number_pattern);
   }
 
 }

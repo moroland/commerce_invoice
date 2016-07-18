@@ -46,7 +46,7 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'required' => TRUE,
       'schema field' => 'order_revision_id',
     );
-    $properties['status'] = array(
+    $properties['invoice_status'] = array(
       'type' => 'integer',
       'label' => t('Status'),
       'description' => t('The invoice status.'),
@@ -66,6 +66,12 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'description' => t('The invoice number.'),
       'getter callback' => array($this, 'invoiceNumberGetter'),
       'computed' => TRUE,
+    );
+    $properties['number_pattern'] = array(
+      'type' => 'commerce_invoice_number_pattern',
+      'label' => t('Invoice number pattern'),
+      'description' => t('The pattern used to generate the invoice number.'),
+      'schema field' => 'number_pattern',
     );
     $properties['created'] = array(
       'type' => 'date',

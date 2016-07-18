@@ -25,14 +25,14 @@ function commerce_invoice_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'number_key' => array(
-        'description' => 'A key used to differentiate sequential invoice numbers.',
+      'number_pattern' => array(
+        'description' => 'The name of the pattern used to calculate the invoice number.',
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
       ),
-      'number_strategy' => array(
-        'description' => 'The strategy used to calculate the invoice number.',
+      'number_key' => array(
+        'description' => 'The key created from the pattern which differentiates sequential invoice numbers.',
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
@@ -95,7 +95,7 @@ function commerce_invoice_schema() {
     ),
     'primary key' => array('invoice_id'),
     'unique keys' => array(
-      'invoice_number' => array('number_strategy', 'number_key', 'number_sequence'),
+      'invoice_number' => array('number_pattern', 'number_key', 'number_sequence'),
     ),
     'indexes' => array(
       'uid' => array('uid'),

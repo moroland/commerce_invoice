@@ -2,6 +2,8 @@
 
 namespace Drupal\commerce_invoice\Entity;
 
+use Drupal\commerce_invoice\InvoiceNumber\Generator;
+
 class InvoiceController extends \EntityAPIController {
 
   /**
@@ -38,12 +40,13 @@ class InvoiceController extends \EntityAPIController {
 
     if (!$entity->hasInvoiceNumber()) {
       $transaction = isset($transaction) ? $transaction : db_transaction();
-      $strategy = $entity->getNumberStrategy();
-      $lock_name = 'commerce_invoice_nr_' . $strategy->getName();
+      $pattern = $entity->getNumberPattern();
+      $lock_name = 'commerce_invoice_nr_' . $pattern->name;
+      $generator = new Generator($pattern);
       while (!lock_acquire($lock_name)) {
         lock_wait($lock_name);
       }
-      $entity->setInvoiceNumber($strategy->getNext());
+      $entity->setInvoiceNumber($generator->getNext());
     }
 
     try {
