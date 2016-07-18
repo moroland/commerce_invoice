@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Administrative form and page callbacks for the Commerce Invoice module.
+ */
 
 /**
  * Form callback for an invoice number pattern.

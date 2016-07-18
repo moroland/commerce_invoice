@@ -41,21 +41,4 @@ class InvoiceNumber {
   public function getStrategyName() {
     return $this->strategyName;
   }
-
-  /**
-   * Format an invoice number as a string.
-   *
-   * @return string
-   */
-  public function __toString() {
-    if (!strlen($this->key)) {
-      return (string) $this->sequence;
-    }
-
-    if (strpos($this->key, '[sequence]') !== FALSE) {
-      return str_replace('[sequence]', $this->sequence, $this->key);
-    }
-
-    return $this->key . '--' . $this->sequence;
-  }
 }

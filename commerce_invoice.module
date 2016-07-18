@@ -57,7 +57,7 @@ function commerce_invoice_entity_info() {
     'access callback' => 'commerce_invoice_number_pattern_access',
     'admin ui' => array(
       'path' => 'admin/commerce/config/invoice-numbers',
-      'file' => 'commerce_invoice.admin.inc',
+      'file' => 'includes/commerce_invoice.admin.inc',
     ),
   );
 
@@ -181,4 +181,20 @@ function commerce_invoice_default_commerce_invoice_number_pattern() {
   ]);
 
   return $patterns;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_invoice_theme() {
+  return array(
+    'commerce_invoice_number' => array(
+      'variables' => array(
+        'invoice_number' => NULL,
+        'pattern' => NULL,
+        'sequence' => NULL,
+      ),
+      'file' => 'includes/commerce_invoice.theme.inc',
+    ),
+  );
 }

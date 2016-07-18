@@ -88,10 +88,10 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
    *
    * @param Invoice $invoice
    *
-   * @return string
+   * @return \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber
    */
   public function invoiceNumberGetter(Invoice $invoice) {
-    return $invoice->getInvoiceNumber()->__toString();
+    return $invoice->getInvoiceNumber();
   }
 
 }
