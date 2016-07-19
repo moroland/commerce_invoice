@@ -4,6 +4,8 @@
  * Theme functions for the Commerce Invoice module.
  */
 
+use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
+
 /**
  * Pre-processing for theming an invoice number.
  *
@@ -11,8 +13,8 @@
  */
 function template_preprocess_commerce_invoice_number(array &$variables) {
   if (!empty($variables['invoice_number'])
-    && $variables['invoice_number'] instanceof \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber) {
-    /** @var \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber $number */
+    && $variables['invoice_number'] instanceof InvoiceNumber) {
+    /** @var InvoiceNumber $number */
     $number = $variables['invoice_number'];
     $variables['key'] = $number->getKey();
     $variables['pattern_name'] = $number->getPatternName();
@@ -39,8 +41,8 @@ function theme_commerce_invoice_number(array $variables) {
   if (!strlen($variables['key'])) {
     $invoice_number = (string) $variables['sequence'];
   }
-  elseif (strpos($variables['key'], '[sequence]') !== FALSE) {
-    $invoice_number = str_replace('[sequence]', $variables['sequence'], $variables['key']);
+  elseif (strpos($variables['key'], InvoiceNumber::SEQUENCE_TOKEN) !== FALSE) {
+    $invoice_number = str_replace(InvoiceNumber::SEQUENCE_TOKEN, $variables['sequence'], $variables['key']);
   }
   else {
     $invoice_number = $variables['key'] . '_' . $variables['sequence'];

@@ -146,7 +146,7 @@ function commerce_invoice_default_commerce_invoice_number_pattern() {
   $patterns['consecutive'] = entity_create($entity_type, [
     'name' => 'consecutive',
     'label' => 'Consecutive',
-    'pattern' => '',
+    'pattern' => \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber::SEQUENCE_TOKEN,
   ]);
 
   $patterns['daily'] = entity_create($entity_type, [

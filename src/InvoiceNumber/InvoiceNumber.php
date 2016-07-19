@@ -4,6 +4,8 @@ namespace Drupal\commerce_invoice\InvoiceNumber;
 
 class InvoiceNumber {
 
+  const SEQUENCE_TOKEN = '{SEQUENCE}';
+
   protected $sequence;
   protected $key;
   protected $patternName;

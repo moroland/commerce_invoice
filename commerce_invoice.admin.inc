@@ -36,7 +36,11 @@ function commerce_invoice_number_pattern_form($form, &$form_state, \Drupal\comme
   $form['pattern'] = array(
     '#type' => 'textfield',
     '#title' => t('Pattern'),
-    '#description' => t('The pattern. By default a sequential integer will be appended to the invoice number. Include the special token <code>[sequence]</code> to place the integer manually.'),
+    '#description' => t('The pattern for invoice numbers.')
+      . '<br />' . t('By default an integer will be appended. Include the special token <code>@sequence_token</code> to place the integer manually.', array(
+        '@sequence_token' => \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber::SEQUENCE_TOKEN,
+      ))
+      . '<br />' . t('This integer is calculated sequentially based on the pattern (after system tokens have been replaced).'),
     '#default_value' => $pattern->pattern,
     '#required' => TRUE,
   );
