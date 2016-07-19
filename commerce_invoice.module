@@ -9,58 +9,58 @@
  * Implements hook_entity_info().
  */
 function commerce_invoice_entity_info() {
-  $entities = array();
+  $entities = [];
 
-  $entities['commerce_invoice'] = array(
+  $entities['commerce_invoice'] = [
     'label' => t('Commerce Invoice'),
     'base table' => 'commerce_invoice',
     'revision table' => 'commerce_invoice_revision',
     'fieldable' => TRUE,
-    'entity keys' => array(
+    'entity keys' => [
       'id' => 'invoice_id',
       'bundle' => 'type',
       'revision' => 'revision_id',
-    ),
-    'bundles' => array(
-      'commerce_invoice' => array(
+    ],
+    'bundles' => [
+      'commerce_invoice' => [
         'label' => t('Invoice'),
-      ),
-    ),
+      ],
+    ],
     'entity class' => '\\Drupal\\commerce_invoice\\Entity\\Invoice',
     'controller class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceController',
     'metadata controller class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceMetadataController',
     'views controller class' => 'EntityDefaultViewsController',
     'access callback' => 'commerce_entity_access',
-    'access arguments' => array(
+    'access arguments' => [
       'user key' => 'uid',
       'access tag' => 'commerce_invoice_access',
-    ),
-    'permission labels' => array(
+    ],
+    'permission labels' => [
       'singular' => t('invoice'),
       'plural' => t('invoices'),
-    ),
-  );
+    ],
+  ];
 
-  $entities['commerce_invoice_number_pattern'] = array(
+  $entities['commerce_invoice_number_pattern'] = [
     'label' => t('Invoice number pattern'),
     'base table' => 'commerce_invoice_number_pattern',
     'controller class' => 'EntityAPIControllerExportable',
     'entity class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceNumberPattern',
-    'entity keys' => array(
+    'entity keys' => [
       'id' => 'name',
       'name' => 'name',
       'label' => 'label',
       'status' => 'status',
-    ),
+    ],
     'exportable' => TRUE,
     'module' => 'commerce_invoice',
     'access callback' => 'commerce_invoice_number_pattern_access',
     'views controller class' => 'EntityDefaultViewsController',
-    'admin ui' => array(
+    'admin ui' => [
       'path' => 'admin/commerce/config/invoice-numbers',
       'file' => 'commerce_invoice.admin.inc',
-    ),
-  );
+    ],
+  ];
 
   return $entities;
 }
@@ -75,14 +75,14 @@ function commerce_invoice_number_pattern_access() {
 /**
  * Checks invoice access for various operations.
  *
- * @param string $op
+ * @param string      $op
  *   The operation being performed. One of 'view', 'update', 'create' or
  *   'delete'.
  * @param object|NULL $invoice
  *   Optionally an invoice to check access for.
  * @param object|NULL $account
  *   The user to check for. Leave it to NULL to check for the current user.
- * 
+ *
  * @return bool
  */
 function commerce_invoice_access($op, $invoice = NULL, $account = NULL) {
@@ -90,7 +90,9 @@ function commerce_invoice_access($op, $invoice = NULL, $account = NULL) {
 }
 
 /**
- * Implements hook_query_commerce_order_access_alter().
+ * Implements hook_query_TAG_alter().
+ *
+ * @param \QueryAlterableInterface $query
  */
 function commerce_invoice_query_commerce_invoice_access_alter(QueryAlterableInterface $query) {
   commerce_entity_access_query_alter($query, 'commerce_invoice');
@@ -110,11 +112,11 @@ function commerce_invoice_permission() {
  *   Invoice statuses keyed by their machine name.
  */
 function commerce_invoice_statuses() {
-  $statuses = array(
+  $statuses = [
     'pending' => t('Pending payment'),
     'paid' => t('Paid'),
     // @todo canceled, etc.
-  );
+  ];
 
   drupal_alter(__FUNCTION__, $statuses);
 
@@ -139,7 +141,7 @@ function commerce_invoice_number_pattern_load($name) {
  */
 function commerce_invoice_default_commerce_invoice_number_pattern() {
   $entity_type = 'commerce_invoice_number_pattern';
-  $patterns = array();
+  $patterns = [];
 
   $patterns['consecutive'] = entity_create($entity_type, [
     'name' => 'consecutive',
@@ -172,22 +174,57 @@ function commerce_invoice_default_commerce_invoice_number_pattern() {
  * Implements hook_theme().
  */
 function commerce_invoice_theme() {
-  return array(
-    'commerce_invoice_number' => array(
-      'variables' => array(
+  return [
+    'commerce_invoice_number' => [
+      'variables' => [
         'invoice_number' => NULL,
         'key' => NULL,
         'pattern_name' => NULL,
         'sequence' => NULL,
-      ),
+      ],
       'file' => 'commerce_invoice.theme.inc',
-    ),
-  );
+    ],
+  ];
 }
 
 /**
  * Implements hook_views_api().
  */
 function commerce_invoice_views_api() {
-  return array('api' => 3);
+  return ['api' => 3];
+}
+
+/**
+ * Create a new invoice based on a Commerce order.
+ *
+ * @param object               $order
+ *   A Commerce order.
+ * @param \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern
+ *   An invoice number pattern.
+ * @param bool                 $save_order_revision
+ *   Whether to create a new order revision before saving the invoice.
+ *
+ * @return \Drupal\commerce_invoice\Entity\Invoice
+ *   A saved invoice entity.
+ */
+function commerce_invoice_create_from_order($order, \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern, $save_order_revision) {
+  $original_revision_id = $order->revision_id;
+
+  if ($save_order_revision) {
+    $order->revision = TRUE;
+    $order->log = t('New revision for invoicing');
+    $order->revision_uid = 0;
+    commerce_order_save($order);
+  }
+
+  /** @var \Drupal\commerce_invoice\Entity\Invoice $invoice */
+  $invoice = entity_create('commerce_invoice', []);
+  $invoice->order_id = $order->order_id;
+  $invoice->revision_id = $original_revision_id;
+  $invoice->uid = $order->uid;
+  $invoice->number_pattern = $pattern->name;
+
+  entity_save('commerce_invoice', $invoice);
+
+  return $invoice;
 }

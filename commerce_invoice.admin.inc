@@ -62,7 +62,8 @@ function commerce_invoice_number_pattern_form($form, &$form_state, \Drupal\comme
  * Form API submit callback for the pattern form.
  */
 function commerce_invoice_number_pattern_form_submit(&$form, &$form_state) {
+  /** @var \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern */
   $pattern = entity_ui_form_submit_build_entity($form, $form_state);
-  entity_save('commerce_invoice_number_pattern', $pattern);
+  $pattern->save();
   $form_state['redirect'] = 'admin/commerce/config/invoice-numbers';
 }
