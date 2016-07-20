@@ -5,6 +5,12 @@
  * The Commerce Invoice module.
  */
 
+use Drupal\commerce_invoice\Entity\Invoice;
+use Drupal\commerce_invoice\Entity\InvoiceController;
+use Drupal\commerce_invoice\Entity\InvoiceMetadataController;
+use Drupal\commerce_invoice\Entity\InvoiceNumberPattern;
+use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
+
 /**
  * Implements hook_entity_info().
  */
@@ -26,9 +32,9 @@ function commerce_invoice_entity_info() {
         'label' => t('Invoice'),
       ],
     ],
-    'entity class' => '\\Drupal\\commerce_invoice\\Entity\\Invoice',
-    'controller class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceController',
-    'metadata controller class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceMetadataController',
+    'entity class' => Invoice::class,
+    'controller class' => InvoiceController::class,
+    'metadata controller class' => InvoiceMetadataController::class,
     'views controller class' => 'EntityDefaultViewsController',
     'access callback' => 'commerce_entity_access',
     'access arguments' => [
@@ -45,7 +51,7 @@ function commerce_invoice_entity_info() {
     'label' => t('Invoice number pattern'),
     'base table' => 'commerce_invoice_number_pattern',
     'controller class' => 'EntityAPIControllerExportable',
-    'entity class' => '\\Drupal\\commerce_invoice\\Entity\\InvoiceNumberPattern',
+    'entity class' => InvoiceNumberPattern::class,
     'entity keys' => [
       'id' => 'name',
       'name' => 'name',
@@ -128,7 +134,7 @@ function commerce_invoice_statuses() {
  *
  * @param string $name
  *
- * @return \Drupal\commerce_invoice\Entity\InvoiceNumberPattern|FALSE
+ * @return InvoiceNumberPattern|FALSE
  */
 function commerce_invoice_number_pattern_load($name) {
   $patterns = entity_load_multiple_by_name('commerce_invoice_number_pattern', [$name]);
@@ -146,7 +152,7 @@ function commerce_invoice_default_commerce_invoice_number_pattern() {
   $patterns['consecutive'] = entity_create($entity_type, [
     'name' => 'consecutive',
     'label' => 'Consecutive',
-    'pattern' => \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber::SEQUENCE_TOKEN,
+    'pattern' => InvoiceNumber::SEQUENCE_TOKEN,
   ]);
 
   $patterns['daily'] = entity_create($entity_type, [
@@ -199,7 +205,7 @@ function commerce_invoice_views_api() {
  *
  * @param object               $order
  *   A Commerce order.
- * @param \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern
+ * @param InvoiceNumberPattern|NULL $pattern
  *   An invoice number pattern.
  * @param bool                 $save_order_revision
  *   Whether to create a new order revision before saving the invoice.
@@ -207,7 +213,7 @@ function commerce_invoice_views_api() {
  * @return \Drupal\commerce_invoice\Entity\Invoice
  *   A saved invoice entity.
  */
-function commerce_invoice_create_from_order($order, \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern, $save_order_revision) {
+function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $save_order_revision) {
   $original_revision_id = $order->revision_id;
 
   if ($save_order_revision) {
@@ -222,6 +228,7 @@ function commerce_invoice_create_from_order($order, \Drupal\commerce_invoice\Ent
   $invoice->order_id = $order->order_id;
   $invoice->revision_id = $original_revision_id;
   $invoice->uid = $order->uid;
+  $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
   $invoice->number_pattern = $pattern->name;
 
   entity_save('commerce_invoice', $invoice);
