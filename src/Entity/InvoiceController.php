@@ -39,13 +39,13 @@ class InvoiceController extends \EntityAPIController {
     }
 
     if (!$entity->hasInvoiceNumber()) {
-      $transaction = isset($transaction) ? $transaction : db_transaction();
       $pattern = $entity->getNumberPattern();
       $lock_name = 'commerce_invoice_nr_' . $pattern->name;
-      $generator = new Generator($pattern);
       while (!lock_acquire($lock_name)) {
         lock_wait($lock_name);
       }
+      $generator = new Generator($pattern);
+      $transaction = isset($transaction) ? $transaction : db_transaction();
       $entity->setInvoiceNumber($generator->getNext());
     }
 
@@ -53,6 +53,7 @@ class InvoiceController extends \EntityAPIController {
       return parent::save($entity, $transaction);
     }
     finally {
+      unset($transaction);
       // Always release the invoice number lock.
       if (isset($lock_name)) {
         lock_release($lock_name);
