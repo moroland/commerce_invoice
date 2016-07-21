@@ -93,6 +93,14 @@ function commerce_invoice_views_default_views() {
       'empty_column' => 0,
     ),
   );
+  $handler->display->display_options['style_options']['empty_table'] = TRUE;
+  /* No results behavior: Global: Unfiltered text */
+  $handler->display->display_options['empty']['area_text_custom']['id'] = 'area_text_custom';
+  $handler->display->display_options['empty']['area_text_custom']['table'] = 'views';
+  $handler->display->display_options['empty']['area_text_custom']['field'] = 'area_text_custom';
+  $handler->display->display_options['empty']['area_text_custom']['label'] = 'There are no invoices to display.';
+  $handler->display->display_options['empty']['area_text_custom']['empty'] = TRUE;
+  $handler->display->display_options['empty']['area_text_custom']['content'] = 'There are no invoices to display.';
   /* Relationship: Commerce Invoice: Owner uid */
   $handler->display->display_options['relationships']['owner']['id'] = 'owner';
   $handler->display->display_options['relationships']['owner']['table'] = 'commerce_invoice';
