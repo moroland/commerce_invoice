@@ -235,3 +235,48 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
 
   return $invoice;
 }
+
+/**
+ * Determine whether an order was revised since the last invoice was created.
+ *
+ * @todo replace this with a price comparison or something
+ *
+ * @param object $order
+ *   The Commerce order object.
+ *
+ * @return bool
+ *   TRUE if the order has changed, FALSE otherwise.
+ */
+function commerce_invoice_order_has_new_revision($order) {
+  $invoice = commerce_invoice_load_last_for_order($order);
+  if (!$invoice) {
+    return TRUE;
+  }
+
+  return $order->revision_id !== $invoice->order_revision_id;
+}
+
+/**
+ * Load the most recent invoice for an order.
+ *
+ * @param object $order
+ *   The Commerce order object.
+ *
+ * @return Invoice|FALSE
+ *   The most recent invoice, or FALSE if none is found.
+ */
+function commerce_invoice_load_last_for_order($order) {
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'commerce_invoice');
+  $query->propertyOrderBy('created', 'DESC');
+  $query->propertyCondition('order_id', $order->order_id);
+  $query->range(0, 1);
+  $result = $query->execute();
+  if (!empty($result['commerce_invoice'])) {
+    $id = key($result['commerce_invoice']);
+
+    return entity_load_single('commerce_invoice', $id);
+  }
+
+  return FALSE;
+}

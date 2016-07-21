@@ -6,12 +6,32 @@
  */
 
 /**
+ * Implements hook_rules_condition_info().
+ */
+function commerce_invoice_rules_condition_info() {
+  $conditions = array();
+
+  $conditions['commerce_invoice_order_has_new_revision'] = array(
+    'label' => t('Order has a new revision since the last invoice'),
+    'parameter' => array(
+      'order' => array(
+        'type' => 'commerce_order',
+        'label' => t('The order'),
+      ),
+    ),
+    'group' => t('Commerce Invoice'),
+  );
+
+  return $conditions;
+}
+
+/**
  * Implements hook_rules_action_info().
  */
 function commerce_invoice_rules_action_info() {
   $actions = array();
 
-  $actions['commerce_invoice_create'] = array(
+  $actions['commerce_invoice_create_from_order'] = array(
     'label' => t('Create an invoice'),
     'parameter' => array(
       'order' => array(
@@ -30,9 +50,6 @@ function commerce_invoice_rules_action_info() {
       ),
     ),
     'group' => t('Commerce Invoice'),
-    'callbacks' => array(
-      'execute' => 'commerce_invoice_create_from_order',
-    ),
   );
 
   return $actions;
