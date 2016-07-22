@@ -263,6 +263,16 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
   $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
   $invoice->number_pattern = $pattern->name;
 
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
+    $invoice_item = clone $line_item;
+    $invoice_item->line_item_id = NULL;
+    commerce_line_item_save($invoice_item);
+    $invoice->wrapper()->commerce_invoice_items[] = $invoice_item;
+  }
+
+  $invoice->wrapper()->commerce_invoice_total = $order_wrapper->commerce_order_total->value();
+
   entity_save('commerce_invoice', $invoice);
 
   return $invoice;
@@ -270,8 +280,6 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
 
 /**
  * Determine whether an order has changed since its latest invoice.
- *
- * @todo implement an actual price field and comparison or something
  *
  * @param object $order
  *   The Commerce order object.
@@ -285,8 +293,11 @@ function commerce_invoice_order_changed($order) {
     return TRUE;
   }
 
-  // @todo implement an actual price field and comparison or something
-  return TRUE;
+  // @todo this needs to be actually logical...
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  $total_changed = $invoice->wrapper()->commerce_invoice_total->value() != $order_wrapper->commerce_order_total->value();
+
+  return $total_changed;
 }
 
 /**

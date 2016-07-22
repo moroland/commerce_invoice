@@ -98,7 +98,7 @@ function commerce_invoice_default_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'inline',
+        'label' => 'hidden',
         'module' => 'commerce_price',
         'settings' => array(
           'calculation' => FALSE,

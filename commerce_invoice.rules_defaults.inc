@@ -28,7 +28,6 @@ function commerce_invoice_default_rules_configuration() {
     "REQUIRES" : [ "rules", "commerce_invoice", "entity" ],
     "ON" : { "commerce_order_update" : [] },
     "IF" : [
-      { "NOT data_is" : { "data" : [ "commerce-order-unchanged:status" ], "value" : "pending" } },
       { "data_is" : { "data" : [ "commerce-order:status" ], "value" : "pending" } },
       { "commerce_invoice_order_changed" : { "order" : [ "commerce-order" ] } }
     ],
