@@ -22,6 +22,7 @@ function commerce_invoice_entity_info() {
     'base table' => 'commerce_invoice',
     'revision table' => 'commerce_invoice_revision',
     'fieldable' => TRUE,
+    'label callback' => 'commerce_invoice_label',
     'entity keys' => [
       'id' => 'invoice_id',
       'bundle' => 'type',
@@ -30,6 +31,10 @@ function commerce_invoice_entity_info() {
     'bundles' => [
       'commerce_invoice' => [
         'label' => t('Invoice'),
+        'admin' => [
+          'path' => 'admin/commerce/config/invoice',
+          'access arguments' => ['administer commerce_invoice entities'],
+        ],
       ],
     ],
     'entity class' => Invoice::class,
@@ -60,11 +65,12 @@ function commerce_invoice_entity_info() {
       'status' => 'status',
     ],
     'exportable' => TRUE,
+    'fieldable' => FALSE,
     'module' => 'commerce_invoice',
     'access callback' => 'commerce_invoice_number_pattern_access',
     'views controller class' => 'EntityDefaultViewsController',
     'admin ui' => [
-      'path' => 'admin/commerce/config/invoice-numbers',
+      'path' => 'admin/commerce/config/invoice/numbers',
       'file' => 'commerce_invoice.admin.inc',
     ],
   ];
@@ -73,6 +79,19 @@ function commerce_invoice_entity_info() {
 }
 
 /**
+ * Label callback for an invoice.
+ *
+ * @param \Drupal\commerce_invoice\Entity\Invoice $invoice
+ *
+ * @return string
+ */
+function commerce_invoice_label(Invoice $invoice) {
+  return $invoice->getInvoiceNumber()->__toString();
+}
+
+/**
+ * Access callback for invoice number patterns.
+ *
  * @return bool
  */
 function commerce_invoice_number_pattern_access() {
@@ -301,6 +320,15 @@ function commerce_invoice_load_last_for_order($order) {
 function commerce_invoice_menu() {
   $items = [];
 
+  $items['admin/commerce/config/invoice'] = [
+    'title' => 'Invoice settings',
+    'description' => 'Configure fields and other settings for invoices.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['commerce_invoice_settings_form'],
+    'access arguments' => ['administer commerce_invoice entities'],
+    'file' => 'commerce_invoice.admin.inc',
+  ];
+
   $items['admin/commerce/invoices/%entity_object'] = [
     'load arguments' => ['commerce_invoice'],
     'title callback' => 'commerce_invoice_title',
@@ -315,17 +343,30 @@ function commerce_invoice_menu() {
 }
 
 /**
- * Title callback for an invoice.
+ * Menu title callback for an invoice.
  *
  * @param Invoice $invoice
  *
  * @return string
  */
 function commerce_invoice_title(Invoice $invoice) {
-  return t('Invoice @number', [
-    '@number' => theme('commerce_invoice_number', [
-      'invoice_number' => $invoice->getInvoiceNumber(),
-      'sanitize' => FALSE,
-    ]),
-  ]);
+  return t('Invoice @number', ['@number' => $invoice->getInvoiceNumber()->__toString()]);
+}
+
+/**
+ * Ensure fields are present on invoices.
+ */
+function commerce_invoice_ensure_fields() {
+  module_load_include('inc', 'commerce_invoice', 'commerce_invoice.fields');
+  foreach (commerce_invoice_default_field_bases() as $field) {
+    if (!field_info_field($field['field_name'])) {
+      field_create_field($field);
+    }
+  }
+
+  foreach (commerce_invoice_default_field_instances() as $instance) {
+    if (!field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
+      field_create_instance($instance);
+    }
+  }
 }

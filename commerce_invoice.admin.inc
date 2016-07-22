@@ -5,6 +5,27 @@
  */
 
 /**
+ * Settings form for the Commerce Invoice module.
+ */
+function commerce_invoice_settings_form($form, &$form_state) {
+  $pattern_options = [];
+  foreach (entity_load('commerce_invoice_number_pattern') as $pattern) {
+    $pattern_options[$pattern->name] = $pattern->label;
+  }
+  $form['commerce_invoice_default_number_pattern'] = [
+    '#title' => t('Default invoice number pattern'),
+    '#type' => 'select',
+    '#options' => $pattern_options,
+    '#default_value' => variable_get('commerce_invoice_default_number_pattern', 'monthly'),
+    '#description' => t('The default pattern used to create invoice numbers (<a href="@url">administer patterns</a>).', [
+      '@url' => url('admin/commerce/config/invoice/numbers'),
+    ]),
+  ];
+
+  return system_settings_form($form);
+}
+
+/**
  * Form callback for an invoice number pattern.
  *
  * @param array $form
@@ -69,5 +90,5 @@ function commerce_invoice_number_pattern_form_submit(&$form, &$form_state) {
   /** @var \Drupal\commerce_invoice\Entity\InvoiceNumberPattern $pattern */
   $pattern = entity_ui_form_submit_build_entity($form, $form_state);
   $pattern->save();
-  $form_state['redirect'] = 'admin/commerce/config/invoice-numbers';
+  $form_state['redirect'] = 'admin/commerce/config/invoice/numbers';
 }

@@ -74,10 +74,7 @@ class InvoiceController extends \EntityAPIController {
       '#account' => $entity->wrapper()->owner->value(),
     ];
     $info[t('Invoice number')] = $entity->hasInvoiceNumber()
-      ? [
-        '#theme' => 'commerce_invoice_number',
-        '#invoice_number' => $entity->getInvoiceNumber(),
-      ]
+      ? check_plain($entity->getInvoiceNumber()->__toString())
       : t('Not yet generated');
     $info[t('Invoice date')] = check_plain(format_date($entity->invoice_date));
     $info[t('Status')] = commerce_invoice_statuses()[$entity->invoice_status];

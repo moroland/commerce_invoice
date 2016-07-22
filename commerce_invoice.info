@@ -4,7 +4,9 @@ package = Commerce (contrib)
 core = 7.x
 php = 5.5.9
 
-dependencies[] = commerce_order
 dependencies[] = entity
+dependencies[] = commerce_line_item
+dependencies[] = commerce_order
+dependencies[] = commerce_price
 dependencies[] = token
 dependencies[] = xautoload

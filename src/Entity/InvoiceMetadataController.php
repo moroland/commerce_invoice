@@ -89,15 +89,4 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
     return $info;
   }
 
-  /**
-   * Getter callback to retrieve an invoice number as a string.
-   *
-   * @param Invoice $invoice
-   *
-   * @return \Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber
-   */
-  public function invoiceNumberGetter(Invoice $invoice) {
-    return $invoice->getInvoiceNumber();
-  }
-
 }

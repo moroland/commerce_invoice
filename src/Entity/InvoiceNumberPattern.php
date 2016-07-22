@@ -14,12 +14,10 @@ class InvoiceNumberPattern extends \Entity {
    * @return InvoiceNumberPattern
    */
   public static function getDefault() {
-    $name = variable_get('commerce_invoice_default_number_pattern', 'consecutive');
+    $name = variable_get('commerce_invoice_default_number_pattern', 'monthly');
     $default = commerce_invoice_number_pattern_load($name);
     if (!$default) {
-      if ($name !== 'default') {
-        watchdog('commerce_invoice', 'Failed to find default invoice number pattern: @name', ['@name' => $name], WATCHDOG_ERROR);
-      }
+      watchdog('commerce_invoice', 'Failed to find default invoice number pattern: @name', ['@name' => $name], WATCHDOG_ERROR);
 
       return entity_create('commerce_invoice_number_pattern', [
         'name' => 'default',

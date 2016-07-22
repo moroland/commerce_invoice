@@ -227,3 +227,18 @@ function commerce_invoice_schema() {
 
   return $schema;
 }
+
+/**
+ * Implements hook_install().
+ */
+function commerce_invoice_install() {
+  commerce_invoice_ensure_fields();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_invoice_uninstall() {
+  field_attach_delete_bundle('commerce_invoice', 'commerce_invoice');
+  variable_del('commerce_invoice_default_number_pattern');
+}

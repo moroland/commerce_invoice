@@ -43,4 +43,15 @@ class InvoiceNumber {
   public function getPatternName() {
     return $this->patternName;
   }
+
+  /**
+   * Magic method to convert the invoice number to a string.
+   *
+   * @see theme_commerce_invoice_number()
+   *
+   * @return string
+   */
+  public function __toString() {
+    return theme('commerce_invoice_number', ['invoice_number' => $this, 'sanitize' => FALSE]);
+  }
 }
