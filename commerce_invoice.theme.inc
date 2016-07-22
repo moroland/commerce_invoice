@@ -48,5 +48,5 @@ function theme_commerce_invoice_number(array $variables) {
     $invoice_number = $variables['key'] . '_' . $variables['sequence'];
   }
 
-  return check_plain($invoice_number);
+  return $variables['sanitize'] ? check_plain($invoice_number) : $invoice_number;
 }

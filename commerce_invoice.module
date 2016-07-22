@@ -45,6 +45,7 @@ function commerce_invoice_entity_info() {
       'singular' => t('invoice'),
       'plural' => t('invoices'),
     ],
+    'uri callback' => 'commerce_invoice_uri',
   ];
 
   $entities['commerce_invoice_number_pattern'] = [
@@ -76,6 +77,17 @@ function commerce_invoice_entity_info() {
  */
 function commerce_invoice_number_pattern_access() {
   return user_access('administer commerce_invoice entities');
+}
+
+/**
+ * Implements callback_entity_info_uri().
+ *
+ * @param Invoice $invoice
+ *
+ * @return string
+ */
+function commerce_invoice_uri(Invoice $invoice) {
+  return ['path' => 'admin/commerce/invoices/' . $invoice->invoice_id];
 }
 
 /**
@@ -187,6 +199,7 @@ function commerce_invoice_theme() {
         'key' => NULL,
         'pattern_name' => NULL,
         'sequence' => NULL,
+        'sanitize' => TRUE,
       ],
       'file' => 'commerce_invoice.theme.inc',
     ],
@@ -226,7 +239,7 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
   /** @var \Drupal\commerce_invoice\Entity\Invoice $invoice */
   $invoice = entity_create('commerce_invoice', []);
   $invoice->order_id = $order->order_id;
-  $invoice->revision_id = $original_revision_id;
+  $invoice->order_revision_id = $original_revision_id;
   $invoice->uid = $order->uid;
   $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
   $invoice->number_pattern = $pattern->name;
@@ -279,4 +292,39 @@ function commerce_invoice_load_last_for_order($order) {
   }
 
   return FALSE;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_invoice_menu() {
+  $items = [];
+
+  $items['admin/commerce/invoices/%entity_object'] = [
+    'load arguments' => ['commerce_invoice'],
+    'title callback' => 'commerce_invoice_title',
+    'title arguments' => [3],
+    'page callback' => 'entity_ui_entity_page_view',
+    'page arguments' => [3],
+    'access callback' => 'commerce_invoice_access',
+    'access arguments' => ['view', 3],
+  ];
+
+  return $items;
+}
+
+/**
+ * Title callback for an invoice.
+ *
+ * @param Invoice $invoice
+ *
+ * @return string
+ */
+function commerce_invoice_title(Invoice $invoice) {
+  return t('Invoice @number', [
+    '@number' => theme('commerce_invoice_number', [
+      'invoice_number' => $invoice->getInvoiceNumber(),
+      'sanitize' => FALSE,
+    ]),
+  ]);
 }

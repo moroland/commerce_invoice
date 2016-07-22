@@ -113,11 +113,19 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['relationships']['number_pattern']['id'] = 'number_pattern';
   $handler->display->display_options['relationships']['number_pattern']['table'] = 'commerce_invoice';
   $handler->display->display_options['relationships']['number_pattern']['field'] = 'number_pattern';
+  /* Field: Commerce Invoice: Invoice ID */
+  $handler->display->display_options['fields']['invoice_id']['id'] = 'invoice_id';
+  $handler->display->display_options['fields']['invoice_id']['table'] = 'commerce_invoice';
+  $handler->display->display_options['fields']['invoice_id']['field'] = 'invoice_id';
+  $handler->display->display_options['fields']['invoice_id']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['invoice_id']['separator'] = '';
   /* Field: Commerce Invoice: Invoice number */
   $handler->display->display_options['fields']['invoice_number']['id'] = 'invoice_number';
   $handler->display->display_options['fields']['invoice_number']['table'] = 'commerce_invoice';
   $handler->display->display_options['fields']['invoice_number']['field'] = 'invoice_number';
   $handler->display->display_options['fields']['invoice_number']['label'] = 'Number';
+  $handler->display->display_options['fields']['invoice_number']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['invoice_number']['alter']['path'] = 'admin/commerce/invoices/[invoice_id]';
   /* Field: Commerce Invoice: Date */
   $handler->display->display_options['fields']['invoice_date']['id'] = 'invoice_date';
   $handler->display->display_options['fields']['invoice_date']['table'] = 'commerce_invoice';
