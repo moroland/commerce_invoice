@@ -11,8 +11,8 @@
 function commerce_invoice_rules_condition_info() {
   $conditions = array();
 
-  $conditions['commerce_invoice_order_has_new_revision'] = array(
-    'label' => t('Order has a new revision since the last invoice'),
+  $conditions['commerce_invoice_order_changed'] = array(
+    'label' => t('Order has changed since the last invoice'),
     'parameter' => array(
       'order' => array(
         'type' => 'commerce_order',
