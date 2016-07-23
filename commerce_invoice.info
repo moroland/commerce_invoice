@@ -5,8 +5,9 @@ core = 7.x
 php = 5.5.9
 
 dependencies[] = entity
-dependencies[] = commerce_line_item
-dependencies[] = commerce_order
-dependencies[] = commerce_price
+dependencies[] = commerce
+dependencies[] = commerce:commerce_line_item
+dependencies[] = commerce:commerce_order
+dependencies[] = commerce:commerce_price
 dependencies[] = token
 dependencies[] = xautoload

@@ -239,6 +239,7 @@ function commerce_invoice_install() {
  * Implements hook_uninstall().
  */
 function commerce_invoice_uninstall() {
-  field_attach_delete_bundle('commerce_invoice', 'commerce_invoice');
+  drupal_load('module', 'commerce');
+  commerce_delete_instances('commerce_invoice');
   variable_del('commerce_invoice_default_number_pattern');
 }

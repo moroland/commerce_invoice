@@ -5,11 +5,12 @@
  */
 
 /**
- * Default field bases for Commerce Invoice.
+ * Required field bases for Commerce Invoice.
  *
  * @return array
+ *   An array of field definitions, keyed by the field name.
  */
-function commerce_invoice_default_field_bases() {
+function commerce_invoice_required_field_bases() {
   $field_bases = array();
 
   $field_bases['commerce_invoice_items'] = array(
@@ -23,7 +24,7 @@ function commerce_invoice_default_field_bases() {
         0 => 'line_item_id',
       ),
     ),
-    'locked' => 0,
+    'locked' => 1,
     'module' => 'commerce_line_item',
     'settings' => array(),
     'translatable' => 0,
@@ -42,7 +43,7 @@ function commerce_invoice_default_field_bases() {
         1 => 'currency_code',
       ),
     ),
-    'locked' => 0,
+    'locked' => 1,
     'module' => 'commerce_price',
     'settings' => array(),
     'translatable' => 0,
@@ -53,11 +54,12 @@ function commerce_invoice_default_field_bases() {
 }
 
 /**
- * Default field instances for Commerce Invoice.
+ * Required field instances for Commerce Invoice.
  * 
  * @return array
+ *   An array of field instance definitions.
  */
-function commerce_invoice_default_field_instances() {
+function commerce_invoice_required_field_instances() {
   $field_instances = array();
 
   $field_instances['commerce_invoice-commerce_invoice-commerce_invoice_items'] = array(

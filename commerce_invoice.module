@@ -365,17 +365,17 @@ function commerce_invoice_title(Invoice $invoice) {
 }
 
 /**
- * Ensure fields are present on invoices.
+ * Ensure required fields are present on invoices.
  */
 function commerce_invoice_ensure_fields() {
   module_load_include('inc', 'commerce_invoice', 'commerce_invoice.fields');
-  foreach (commerce_invoice_default_field_bases() as $field) {
+  foreach (commerce_invoice_required_field_bases() as $field) {
     if (!field_info_field($field['field_name'])) {
       field_create_field($field);
     }
   }
 
-  foreach (commerce_invoice_default_field_instances() as $instance) {
+  foreach (commerce_invoice_required_field_instances() as $instance) {
     if (!field_info_instance($instance['entity_type'], $instance['field_name'], $instance['bundle'])) {
       field_create_instance($instance);
     }
