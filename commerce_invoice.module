@@ -81,7 +81,7 @@ function commerce_invoice_entity_info() {
 /**
  * Label callback for an invoice.
  *
- * @param \Drupal\commerce_invoice\Entity\Invoice $invoice
+ * @param Invoice $invoice
  *
  * @return string
  */
@@ -235,30 +235,19 @@ function commerce_invoice_views_api() {
 /**
  * Create a new invoice based on a Commerce order.
  *
- * @param object               $order
+ * @param object                    $order
  *   A Commerce order.
  * @param InvoiceNumberPattern|NULL $pattern
  *   An invoice number pattern.
- * @param bool                 $save_order_revision
- *   Whether to create a new order revision before saving the invoice.
  *
- * @return \Drupal\commerce_invoice\Entity\Invoice
+ * @return Invoice
  *   A saved invoice entity.
  */
-function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $save_order_revision) {
-  $original_revision_id = $order->revision_id;
-
-  if ($save_order_revision) {
-    $order->revision = TRUE;
-    $order->log = t('New revision for invoicing');
-    $order->revision_uid = 0;
-    commerce_order_save($order);
-  }
-
-  /** @var \Drupal\commerce_invoice\Entity\Invoice $invoice */
+function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL) {
+  /** @var Invoice $invoice */
   $invoice = entity_create('commerce_invoice', []);
   $invoice->order_id = $order->order_id;
-  $invoice->order_revision_id = $original_revision_id;
+  $invoice->order_revision_id = $order->revision_id;
   $invoice->uid = $order->uid;
   $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
   $invoice->number_pattern = $pattern->name;

@@ -43,11 +43,6 @@ function commerce_invoice_rules_action_info() {
         'label' => t('The invoice number pattern'),
         'optional' => TRUE,
       ),
-      'save_revision' => array(
-        'type' => 'boolean',
-        'label' => t('Save a new order revision when creating the invoice'),
-        'default value' => TRUE,
-      ),
     ),
     'group' => t('Commerce Invoice'),
   );
