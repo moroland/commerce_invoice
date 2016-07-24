@@ -16,7 +16,7 @@ function commerce_invoice_default_rules_configuration() {
       { "data_is" : { "data" : [ "commerce-order:status" ], "value" : "pending" } }
     ],
     "DO" : [
-      { "commerce_invoice_create_from_order" : { "order" : [ "commerce-order" ] } }
+      { "commerce_invoice_create_from_order" : { "order" : [ "commerce-order" ], "cancel_existing" : 0 } }
     ]
   }
 }');
@@ -32,7 +32,7 @@ function commerce_invoice_default_rules_configuration() {
       { "commerce_invoice_order_changed" : { "order" : [ "commerce-order" ] } }
     ],
     "DO" : [
-      { "commerce_invoice_create_from_order" : { "order" : [ "commerce-order" ] } }
+      { "commerce_invoice_create_from_order" : { "order" : [ "commerce-order" ], "cancel_existing" : 1 } }
     ]
   }
 }');

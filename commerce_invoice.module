@@ -146,13 +146,14 @@ function commerce_invoice_permission() {
  * A list of invoice statuses.
  *
  * @return string<string>
- *   Invoice statuses keyed by their machine name.
+ *   Invoice statuses keyed by their machine name (one of the Invoice::STATUS_
+ *   constants).
  */
 function commerce_invoice_statuses() {
   $statuses = [
-    'pending' => t('Pending payment'),
-    'paid' => t('Paid'),
-    // @todo canceled, etc.
+    Invoice::STATUS_PENDING => t('Pending payment'),
+    Invoice::STATUS_PAID => t('Paid'),
+    Invoice::STATUS_CANCELED => t('Canceled'),
   ];
 
   drupal_alter(__FUNCTION__, $statuses);
@@ -239,16 +240,20 @@ function commerce_invoice_views_api() {
  *   A Commerce order.
  * @param InvoiceNumberPattern|NULL $pattern
  *   An invoice number pattern.
+ * @param bool                      $cancel_existing
+ *   Cancel existing invoices for the order.
  *
  * @return Invoice
  *   A saved invoice entity.
  */
-function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL) {
+function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $cancel_existing = TRUE) {
   /** @var Invoice $invoice */
   $invoice = entity_create('commerce_invoice', []);
   $invoice->order_id = $order->order_id;
   $invoice->order_revision_id = $order->revision_id;
   $invoice->uid = $order->uid;
+  $invoice->log = t('Created from order @id', ['@id' => $order->order_id]);
+  $invoice->revision = TRUE;
   $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
   $invoice->number_pattern = $pattern->name;
 
@@ -262,7 +267,23 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
 
   $invoice->wrapper()->commerce_invoice_total = $order_wrapper->commerce_order_total->value();
 
-  entity_save('commerce_invoice', $invoice);
+  if ($cancel_existing) {
+    $existing = commerce_invoice_load_for_order($order);
+  }
+
+  $invoice->save();
+
+  if ($cancel_existing && !empty($existing)) {
+    $log = t('A new invoice was created for the same order: number @number, ID @id', [
+      '@id' => $invoice->invoice_id,
+      '@number' => $invoice->getInvoiceNumber()->__toString(),
+    ]);
+    foreach ($existing as $previous) {
+      $previous->invoice_status = Invoice::STATUS_CANCELED;
+      $previous->log = $log;
+      $previous->save();
+    }
+  }
 
   return $invoice;
 }
@@ -277,7 +298,8 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
  *   TRUE if the order has changed since the last invoice, FALSE otherwise.
  */
 function commerce_invoice_order_changed($order) {
-  $invoice = commerce_invoice_load_last_for_order($order);
+  $invoices = commerce_invoice_load_for_order($order, 1, 'created', TRUE);
+  $invoice = reset($invoices);
   if (!$invoice) {
     return TRUE;
   }
@@ -290,28 +312,36 @@ function commerce_invoice_order_changed($order) {
 }
 
 /**
- * Load the most recent invoice for an order.
+ * Load the existing invoices for an order.
  *
- * @param object $order
+ * @param object      $order
  *   The Commerce order object.
+ * @param int         $limit
+ *   Limit the number of invoices to return, or 0 for no limit.
+ * @param string|NULL $sort
+ *   A property to sort invoices by, or NULL for no sorting.
+ * @param bool        $descending
+ *   Leave FALSE to sort ascending. Set TRUE to sort in descending order.
  *
- * @return Invoice|FALSE
- *   The most recent invoice, or FALSE if none is found.
+ * @return Invoice[]
+ *   The order's invoices, in descending order of the date they were created,
+ *   or an empty array if none are found.
  */
-function commerce_invoice_load_last_for_order($order) {
+function commerce_invoice_load_for_order($order, $limit = 0, $sort = NULL, $descending = FALSE) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'commerce_invoice');
-  $query->propertyOrderBy('created', 'DESC');
   $query->propertyCondition('order_id', $order->order_id);
-  $query->range(0, 1);
-  $result = $query->execute();
-  if (!empty($result['commerce_invoice'])) {
-    $id = key($result['commerce_invoice']);
-
-    return entity_load_single('commerce_invoice', $id);
+  if ($sort !== NULL) {
+    $query->propertyOrderBy($sort, $descending ? 'DESC' : 'ASC');
   }
+  if (!empty($limit)) {
+    $query->range(0, $limit);
+  }
+  $result = $query->execute();
 
-  return FALSE;
+  return !empty($result['commerce_invoice'])
+    ? entity_load('commerce_invoice', array_keys($result['commerce_invoice']))
+    : [];
 }
 
 /**

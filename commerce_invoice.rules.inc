@@ -43,6 +43,12 @@ function commerce_invoice_rules_action_info() {
         'label' => t('The invoice number pattern'),
         'optional' => TRUE,
       ),
+      'cancel_existing' => array(
+        'type' => 'boolean',
+        'label' => t('Cancel existing'),
+        'description' => t('Cancel all other invoices for the order.'),
+        'default value' => TRUE,
+      ),
     ),
     'group' => t('Commerce Invoice'),
   );

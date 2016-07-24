@@ -6,6 +6,10 @@ use Drupal\commerce_invoice\InvoiceNumber\InvoiceNumber;
 
 class Invoice extends \Entity {
 
+  const STATUS_CANCELED = 'canceled';
+  const STATUS_PAID = 'paid';
+  const STATUS_PENDING = 'pending';
+
   public $invoice_id;
   public $revision_id;
   public $type = 'commerce_invoice';
@@ -16,7 +20,7 @@ class Invoice extends \Entity {
   public $number_key;
   public $uid;
   public $invoice_date;
-  public $invoice_status = 'pending';
+  public $invoice_status = self::STATUS_PENDING;
   public $created;
   public $changed;
   public $revision_created;

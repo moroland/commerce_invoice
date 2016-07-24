@@ -138,6 +138,15 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['fields']['order_number']['field'] = 'order_number';
   $handler->display->display_options['fields']['order_number']['relationship'] = 'order';
   $handler->display->display_options['fields']['order_number']['link_to_order'] = 'admin';
+  /* Field: Commerce Invoice: Total */
+  $handler->display->display_options['fields']['commerce_invoice_total']['id'] = 'commerce_invoice_total';
+  $handler->display->display_options['fields']['commerce_invoice_total']['table'] = 'field_data_commerce_invoice_total';
+  $handler->display->display_options['fields']['commerce_invoice_total']['field'] = 'commerce_invoice_total';
+  $handler->display->display_options['fields']['commerce_invoice_total']['label'] = 'Amount';
+  $handler->display->display_options['fields']['commerce_invoice_total']['click_sort_column'] = 'amount';
+  $handler->display->display_options['fields']['commerce_invoice_total']['settings'] = array(
+    'calculation' => FALSE,
+  );
   /* Field: Commerce Invoice: Status */
   $handler->display->display_options['fields']['invoice_status']['id'] = 'invoice_status';
   $handler->display->display_options['fields']['invoice_status']['table'] = 'commerce_invoice';
@@ -148,12 +157,6 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'owner';
   $handler->display->display_options['fields']['name']['label'] = 'User';
-  /* Field: Commerce Invoice: Changed */
-  $handler->display->display_options['fields']['changed']['id'] = 'changed';
-  $handler->display->display_options['fields']['changed']['table'] = 'commerce_invoice';
-  $handler->display->display_options['fields']['changed']['field'] = 'changed';
-  $handler->display->display_options['fields']['changed']['date_format'] = 'short';
-  $handler->display->display_options['fields']['changed']['second_date_format'] = 'long';
   /* Field: Commerce Invoice: Created */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'commerce_invoice';
