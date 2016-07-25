@@ -136,6 +136,14 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
     '#required' => TRUE,
   ];
 
+  $form['invoice_date'] = array(
+    '#type' => 'date_select',
+    '#weight' => -60,
+    '#title' => t('Invoice date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => date('Y-m-d H:i:s', !empty($invoice->invoice_date) ? $invoice->invoice_date : REQUEST_TIME),
+  );
+
   field_attach_form('commerce_invoice', $invoice, $form, $form_state);
 
   $form['uid'] = array(
@@ -171,8 +179,15 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
  * Form API submit callback for the invoice form.
  */
 function commerce_invoice_form_submit(&$form, &$form_state) {
+  if (!empty($form_state['values']['invoice_date']) && !is_numeric($form_state['values']['invoice_date'])) {
+    $invoice_date = strtotime($form_state['values']['invoice_date']);
+  }
+
   /** @var \Drupal\commerce_invoice\Entity\Invoice $invoice */
   $invoice = entity_ui_form_submit_build_entity($form, $form_state);
+  if (!empty($invoice_date)) {
+    $invoice->invoice_date = $invoice_date;
+  }
   $invoice->save();
 
   $form_state['redirect'] = 'admin/commerce/invoices';
