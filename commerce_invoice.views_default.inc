@@ -33,16 +33,27 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['pager']['options']['items_per_page'] = '25';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
+    'invoice_id' => 'invoice_id',
     'invoice_number' => 'invoice_number',
     'invoice_date' => 'invoice_date',
     'order_number' => 'order_number',
+    'commerce_invoice_total' => 'commerce_invoice_total',
     'invoice_status' => 'invoice_status',
     'name' => 'name',
-    'changed' => 'changed',
     'created' => 'created',
+    'nothing_1' => 'nothing_1',
+    'nothing' => 'nothing',
+    'ctools_dropdown' => 'ctools_dropdown',
   );
   $handler->display->display_options['style_options']['default'] = 'created';
   $handler->display->display_options['style_options']['info'] = array(
+    'invoice_id' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
     'invoice_number' => array(
       'sortable' => 1,
       'default_sort_order' => 'desc',
@@ -64,6 +75,13 @@ function commerce_invoice_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
+    'commerce_invoice_total' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
     'invoice_status' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
@@ -78,16 +96,24 @@ function commerce_invoice_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'changed' => array(
+    'created' => array(
       'sortable' => 1,
       'default_sort_order' => 'desc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'created' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'desc',
+    'nothing_1' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'nothing' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'ctools_dropdown' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -101,32 +127,32 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['empty']['area_text_custom']['label'] = 'There are no invoices to display.';
   $handler->display->display_options['empty']['area_text_custom']['empty'] = TRUE;
   $handler->display->display_options['empty']['area_text_custom']['content'] = 'There are no invoices to display.';
-  /* Relationship: Commerce Invoice: Owner uid */
+  /* Relationship: Invoice: Owner uid */
   $handler->display->display_options['relationships']['owner']['id'] = 'owner';
   $handler->display->display_options['relationships']['owner']['table'] = 'commerce_invoice';
   $handler->display->display_options['relationships']['owner']['field'] = 'owner';
-  /* Relationship: Commerce Invoice: Order order_id */
+  /* Relationship: Invoice: Order order_id */
   $handler->display->display_options['relationships']['order']['id'] = 'order';
   $handler->display->display_options['relationships']['order']['table'] = 'commerce_invoice';
   $handler->display->display_options['relationships']['order']['field'] = 'order';
-  /* Relationship: Commerce Invoice: Invoice number pattern */
+  /* Relationship: Invoice: Invoice number pattern */
   $handler->display->display_options['relationships']['number_pattern']['id'] = 'number_pattern';
   $handler->display->display_options['relationships']['number_pattern']['table'] = 'commerce_invoice';
   $handler->display->display_options['relationships']['number_pattern']['field'] = 'number_pattern';
-  /* Field: Commerce Invoice: Invoice ID */
+  /* Field: Invoice: Invoice ID */
   $handler->display->display_options['fields']['invoice_id']['id'] = 'invoice_id';
   $handler->display->display_options['fields']['invoice_id']['table'] = 'commerce_invoice';
   $handler->display->display_options['fields']['invoice_id']['field'] = 'invoice_id';
   $handler->display->display_options['fields']['invoice_id']['exclude'] = TRUE;
   $handler->display->display_options['fields']['invoice_id']['separator'] = '';
-  /* Field: Commerce Invoice: Invoice number */
+  /* Field: Invoice: Invoice number */
   $handler->display->display_options['fields']['invoice_number']['id'] = 'invoice_number';
   $handler->display->display_options['fields']['invoice_number']['table'] = 'commerce_invoice';
   $handler->display->display_options['fields']['invoice_number']['field'] = 'invoice_number';
   $handler->display->display_options['fields']['invoice_number']['label'] = 'Number';
   $handler->display->display_options['fields']['invoice_number']['alter']['make_link'] = TRUE;
   $handler->display->display_options['fields']['invoice_number']['alter']['path'] = 'admin/commerce/invoices/[invoice_id]';
-  /* Field: Commerce Invoice: Date */
+  /* Field: Invoice: Date */
   $handler->display->display_options['fields']['invoice_date']['id'] = 'invoice_date';
   $handler->display->display_options['fields']['invoice_date']['table'] = 'commerce_invoice';
   $handler->display->display_options['fields']['invoice_date']['field'] = 'invoice_date';
@@ -138,7 +164,7 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['fields']['order_number']['field'] = 'order_number';
   $handler->display->display_options['fields']['order_number']['relationship'] = 'order';
   $handler->display->display_options['fields']['order_number']['link_to_order'] = 'admin';
-  /* Field: Commerce Invoice: Total */
+  /* Field: Invoice: Total */
   $handler->display->display_options['fields']['commerce_invoice_total']['id'] = 'commerce_invoice_total';
   $handler->display->display_options['fields']['commerce_invoice_total']['table'] = 'field_data_commerce_invoice_total';
   $handler->display->display_options['fields']['commerce_invoice_total']['field'] = 'commerce_invoice_total';
@@ -147,7 +173,7 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['fields']['commerce_invoice_total']['settings'] = array(
     'calculation' => FALSE,
   );
-  /* Field: Commerce Invoice: Status */
+  /* Field: Invoice: Status */
   $handler->display->display_options['fields']['invoice_status']['id'] = 'invoice_status';
   $handler->display->display_options['fields']['invoice_status']['table'] = 'commerce_invoice';
   $handler->display->display_options['fields']['invoice_status']['field'] = 'invoice_status';
@@ -157,12 +183,40 @@ function commerce_invoice_views_default_views() {
   $handler->display->display_options['fields']['name']['field'] = 'name';
   $handler->display->display_options['fields']['name']['relationship'] = 'owner';
   $handler->display->display_options['fields']['name']['label'] = 'User';
-  /* Field: Commerce Invoice: Created */
+  /* Field: Invoice: Created */
   $handler->display->display_options['fields']['created']['id'] = 'created';
   $handler->display->display_options['fields']['created']['table'] = 'commerce_invoice';
   $handler->display->display_options['fields']['created']['field'] = 'created';
   $handler->display->display_options['fields']['created']['date_format'] = 'short';
   $handler->display->display_options['fields']['created']['second_date_format'] = 'long';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing_1']['id'] = 'nothing_1';
+  $handler->display->display_options['fields']['nothing_1']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing_1']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing_1']['label'] = 'Edit link';
+  $handler->display->display_options['fields']['nothing_1']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nothing_1']['alter']['text'] = 'Edit';
+  $handler->display->display_options['fields']['nothing_1']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['nothing_1']['alter']['path'] = 'admin/commerce/invoices/[invoice_id]/edit';
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = 'Delete link';
+  $handler->display->display_options['fields']['nothing']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = 'Delete';
+  $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+  $handler->display->display_options['fields']['nothing']['alter']['path'] = 'admin/commerce/invoices/[invoice_id]/delete';
+  /* Field: Global: Dropdown links */
+  $handler->display->display_options['fields']['ctools_dropdown']['id'] = 'ctools_dropdown';
+  $handler->display->display_options['fields']['ctools_dropdown']['table'] = 'views';
+  $handler->display->display_options['fields']['ctools_dropdown']['field'] = 'ctools_dropdown';
+  $handler->display->display_options['fields']['ctools_dropdown']['label'] = 'Links';
+  $handler->display->display_options['fields']['ctools_dropdown']['fields'] = array(
+    'nothing_1' => 'nothing_1',
+    'nothing' => 'nothing',
+  );
+  $handler->display->display_options['fields']['ctools_dropdown']['check_access'] = 1;
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');

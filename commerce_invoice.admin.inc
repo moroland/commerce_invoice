@@ -8,14 +8,10 @@
  * Settings form for the Commerce Invoice module.
  */
 function commerce_invoice_settings_form($form, &$form_state) {
-  $pattern_options = [];
-  foreach (entity_load('commerce_invoice_number_pattern') as $pattern) {
-    $pattern_options[$pattern->name] = $pattern->label;
-  }
   $form['commerce_invoice_default_number_pattern'] = [
     '#title' => t('Default invoice number pattern'),
     '#type' => 'select',
-    '#options' => $pattern_options,
+    '#options' => commerce_invoice_number_pattern_options_list(),
     '#default_value' => variable_get('commerce_invoice_default_number_pattern', 'monthly'),
     '#description' => t('The default pattern used to create invoice numbers (<a href="@url">administer patterns</a>).', [
       '@url' => url('admin/commerce/config/invoice/numbers'),
@@ -91,4 +87,93 @@ function commerce_invoice_number_pattern_form_submit(&$form, &$form_state) {
   $pattern = entity_ui_form_submit_build_entity($form, $form_state);
   $pattern->save();
   $form_state['redirect'] = 'admin/commerce/config/invoice/numbers';
+}
+
+/**
+ * Entity API form callback for an invoice.
+ *
+ * @param array $form
+ * @param array &$form_state
+ * @param \Drupal\commerce_invoice\Entity\Invoice $invoice
+ * @param string $op
+ *
+ * @return array
+ */
+function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Entity\Invoice $invoice, $op = 'edit') {
+  $wrapper = $invoice->wrapper();
+
+  if (!empty($invoice->order_id)) {
+    $form['order_id'] = array(
+      '#type' => 'item',
+      '#title' => t('Order'),
+      '#markup' => l($wrapper->order->order_number->value(), 'admin/commerce/orders/' . $wrapper->order->getIdentifier()),
+      '#weight' => -100,
+    );
+    if (isset($invoice->order_revision_id)) {
+      $form['order_id']['#markup'] .= ' ' . t('(revision ID: @id)', ['@id' => $invoice->order_revision_id]);
+    }
+  }
+
+  $form['invoice_status'] = array(
+    '#type' => 'select',
+    '#options' => commerce_invoice_statuses(),
+    '#default_value' => $invoice->invoice_status,
+    '#required' => TRUE,
+    '#title' => t('Invoice status'),
+    '#weight' => -80,
+  );
+
+  $form['number_pattern'] = [
+    '#title' => t('Invoice number pattern'),
+    '#type' => 'select',
+    '#options' => commerce_invoice_number_pattern_options_list(),
+    '#default_value' => $invoice->number_pattern ?: variable_get('commerce_invoice_default_number_pattern', 'monthly'),
+    '#description' => t('The pattern used to generate the invoice number (<a href="@url">administer patterns</a>).', [
+      '@url' => url('admin/commerce/config/invoice/numbers'),
+    ]),
+    '#disabled' => empty($invoice->is_new),
+    '#weight' => -70,
+    '#required' => TRUE,
+  ];
+
+  field_attach_form('commerce_invoice', $invoice, $form, $form_state);
+
+  $form['uid'] = array(
+    '#type' => 'textfield',
+    '#weight' => 90,
+    '#autocomplete_path' => 'user/autocomplete',
+    '#default_value' => !empty($wrapper->uid) ? $wrapper->owner->name->raw() : '',
+    '#title' => t('Owner'),
+    '#description' => t('If left empty, this will default to the order owner.'),
+  );
+
+  $form['actions'] = array(
+    '#type' => 'actions',
+    '#weight' => 100,
+  );
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
+
+  if (!empty($invoice->invoice_id)) {
+    $form['actions']['delete'] = array(
+      '#type' => 'link',
+      '#title' => t('Delete'),
+      '#href' => 'admin/commerce/invoices/' . $invoice->invoice_id . '/delete',
+    );
+  }
+
+  return $form;
+}
+
+/**
+ * Form API submit callback for the invoice form.
+ */
+function commerce_invoice_form_submit(&$form, &$form_state) {
+  /** @var \Drupal\commerce_invoice\Entity\Invoice $invoice */
+  $invoice = entity_ui_form_submit_build_entity($form, $form_state);
+  $invoice->save();
+
+  $form_state['redirect'] = 'admin/commerce/invoices';
 }

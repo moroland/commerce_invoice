@@ -18,11 +18,10 @@ function commerce_invoice_entity_info() {
   $entities = [];
 
   $entities['commerce_invoice'] = [
-    'label' => t('Commerce Invoice'),
+    'label' => t('Invoice'),
     'base table' => 'commerce_invoice',
     'revision table' => 'commerce_invoice_revision',
     'fieldable' => TRUE,
-    'label callback' => 'commerce_invoice_label',
     'entity keys' => [
       'id' => 'invoice_id',
       'bundle' => 'type',
@@ -50,7 +49,14 @@ function commerce_invoice_entity_info() {
       'singular' => t('invoice'),
       'plural' => t('invoices'),
     ],
-    'uri callback' => 'commerce_invoice_uri',
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
+    'module' => 'commerce_invoice',
+    'admin ui' => [
+      'controller class' => 'EntityContentUIController',
+      'path' => 'admin/commerce/invoices',
+      'file' => 'commerce_invoice.admin.inc',
+    ],
   ];
 
   $entities['commerce_invoice_number_pattern'] = [
@@ -79,34 +85,12 @@ function commerce_invoice_entity_info() {
 }
 
 /**
- * Label callback for an invoice.
- *
- * @param Invoice $invoice
- *
- * @return string
- */
-function commerce_invoice_label(Invoice $invoice) {
-  return $invoice->getInvoiceNumber()->__toString();
-}
-
-/**
  * Access callback for invoice number patterns.
  *
  * @return bool
  */
 function commerce_invoice_number_pattern_access() {
   return user_access('administer commerce_invoice entities');
-}
-
-/**
- * Implements callback_entity_info_uri().
- *
- * @param Invoice $invoice
- *
- * @return string
- */
-function commerce_invoice_uri(Invoice $invoice) {
-  return ['path' => 'admin/commerce/invoices/' . $invoice->invoice_id];
 }
 
 /**
@@ -151,7 +135,7 @@ function commerce_invoice_permission() {
  */
 function commerce_invoice_statuses() {
   $statuses = [
-    Invoice::STATUS_PENDING => t('Pending payment'),
+    Invoice::STATUS_PENDING => t('Pending'),
     Invoice::STATUS_PAID => t('Paid'),
     Invoice::STATUS_CANCELED => t('Canceled'),
   ];
@@ -359,16 +343,6 @@ function commerce_invoice_menu() {
     'file' => 'commerce_invoice.admin.inc',
   ];
 
-  $items['admin/commerce/invoices/%entity_object'] = [
-    'load arguments' => ['commerce_invoice'],
-    'title callback' => 'commerce_invoice_title',
-    'title arguments' => [3],
-    'page callback' => 'entity_ui_entity_page_view',
-    'page arguments' => [3],
-    'access callback' => 'commerce_invoice_access',
-    'access arguments' => ['view', 3],
-  ];
-
   return $items;
 }
 
@@ -399,4 +373,19 @@ function commerce_invoice_ensure_fields() {
       field_create_instance($instance);
     }
   }
+}
+
+/**
+ * Returns a list of invoice number patterns.
+ *
+ * @return array
+ *   Invoice number pattern labels, keyed by machine name.
+ */
+function commerce_invoice_number_pattern_options_list() {
+  $pattern_options = [];
+  foreach (entity_load('commerce_invoice_number_pattern') as $pattern) {
+    $pattern_options[$pattern->name] = $pattern->label;
+  }
+
+  return $pattern_options;
 }

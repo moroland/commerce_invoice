@@ -42,6 +42,7 @@ function commerce_invoice_rules_action_info() {
         'type' => 'commerce_invoice_number_pattern',
         'label' => t('The invoice number pattern'),
         'optional' => TRUE,
+        'options list' => 'commerce_invoice_number_pattern_options_list',
       ),
       'cancel_existing' => array(
         'type' => 'boolean',

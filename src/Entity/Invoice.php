@@ -73,4 +73,20 @@ class Invoice extends \Entity {
     return new InvoiceNumber($this->number_sequence, $this->number_key, $this->number_pattern);
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  protected function defaultUri() {
+    return ['path' => 'admin/commerce/invoices/' . $this->identifier()];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function defaultLabel() {
+    return $this->hasInvoiceNumber()
+      ? t('Invoice @number', ['@number' => $this->getInvoiceNumber()->__toString()])
+      : t('Invoice');
+  }
+
 }
