@@ -35,7 +35,12 @@ class InvoiceController extends \EntityAPIController {
       $entity->invoice_date = $entity->created;
     }
     if (empty($entity->uid)) {
-      $entity->uid = $GLOBALS['user']->uid;
+      if (!empty($entity->order_id) && !empty($entity->wrapper()->order->owner)) {
+        $entity->uid = $entity->wrapper()->order->owner->getIdentifier();
+      }
+      else {
+        $entity->uid = $GLOBALS['user']->uid;
+      }
     }
 
     if (!$entity->hasInvoiceNumber()) {
