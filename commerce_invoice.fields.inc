@@ -20,15 +20,30 @@ function commerce_invoice_required_field_bases() {
     'entity_types' => array('commerce_invoice'),
     'field_name' => 'commerce_invoice_items',
     'indexes' => array(
-      'line_item_id' => array(
-        0 => 'line_item_id',
+      'target_id' => array(
+        0 => 'target_id',
       ),
     ),
     'locked' => 1,
-    'module' => 'commerce_line_item',
-    'settings' => array(),
+    'module' => 'entityreference',
+    'settings' => array(
+      'behaviors' => array(),
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(),
+      ),
+      'target_type' => 'commerce_line_item',
+    ),
     'translatable' => 0,
-    'type' => 'commerce_line_item_reference',
+    'type' => 'entityreference',
   );
 
   $field_bases['commerce_invoice_total'] = array(
@@ -68,28 +83,40 @@ function commerce_invoice_required_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'hidden',
-        'module' => 'commerce_line_item',
+        'label' => 'above',
+        'module' => 'entityreference',
         'settings' => array(
-          'view' => 'commerce_line_item_table|default',
+          'link' => FALSE,
         ),
-        'type' => 'commerce_line_item_reference_view',
-        'weight' => 0,
+        'type' => 'entityreference_label',
+        'weight' => 3,
       ),
     ),
     'entity_type' => 'commerce_invoice',
     'field_name' => 'commerce_invoice_items',
-    'label' => t('Line items'),
+    'label' => 'Line items',
     'required' => 0,
     'settings' => array(
       'user_register_form' => FALSE,
     ),
     'widget' => array(
-      'active' => 0,
-      'module' => 'commerce_line_item',
-      'settings' => array(),
-      'type' => 'commerce_line_item_manager',
-      'weight' => 0,
+      'active' => 1,
+      'module' => 'inline_entity_form',
+      'settings' => array(
+        'fields' => array(),
+        'type_settings' => array(
+          'allow_clone' => 0,
+          'allow_existing' => FALSE,
+          'allow_new' => 1,
+          'delete_references' => 1,
+          'label_plural' => 'line items',
+          'label_singular' => 'line item',
+          'match_operator' => 'CONTAINS',
+          'override_labels' => 0,
+        ),
+      ),
+      'type' => 'inline_entity_form',
+      'weight' => 50,
     ),
   );
 
@@ -123,7 +150,7 @@ function commerce_invoice_required_field_instances() {
         'currency_code' => 'default',
       ),
       'type' => 'commerce_price_full',
-      'weight' => 1,
+      'weight' => 60,
     ),
   );
 
