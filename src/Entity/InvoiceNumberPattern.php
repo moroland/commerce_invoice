@@ -37,4 +37,13 @@ class InvoiceNumberPattern extends \Entity {
 
     return $default;
   }
+
+  /**
+   * Magic string conversion.
+   *
+   * @return string
+   */
+  public function __toString() {
+    return (string) $this->name;
+  }
 }
