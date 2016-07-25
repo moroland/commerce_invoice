@@ -12,7 +12,7 @@ function commerce_invoice_settings_form($form, &$form_state) {
     '#title' => t('Default invoice number pattern'),
     '#type' => 'select',
     '#options' => commerce_invoice_number_pattern_options_list(),
-    '#default_value' => variable_get('commerce_invoice_default_number_pattern', 'monthly'),
+    '#default_value' => \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefaultName(),
     '#description' => t('The default pattern used to create invoice numbers (<a href="@url">administer patterns</a>).', [
       '@url' => url('admin/commerce/config/invoice/numbers'),
     ]),
@@ -127,7 +127,7 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
     '#title' => t('Invoice number pattern'),
     '#type' => 'select',
     '#options' => commerce_invoice_number_pattern_options_list(),
-    '#default_value' => $invoice->number_pattern ?: variable_get('commerce_invoice_default_number_pattern', 'monthly'),
+    '#default_value' => $invoice->number_pattern ?: \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefaultName(),
     '#description' => t('The pattern used to generate the invoice number (<a href="@url">administer patterns</a>).', [
       '@url' => url('admin/commerce/config/invoice/numbers'),
     ]),

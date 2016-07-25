@@ -9,12 +9,21 @@ class InvoiceNumberPattern extends \Entity {
   public $pattern;
 
   /**
+   * Get the machine name of the default invoice number pattern.
+   *
+   * @return string
+   */
+  public static function getDefaultName() {
+    return variable_get('commerce_invoice_default_number_pattern', 'monthly');
+  }
+
+  /**
    * Get the default invoice number pattern.
    *
    * @return InvoiceNumberPattern
    */
   public static function getDefault() {
-    $name = variable_get('commerce_invoice_default_number_pattern', 'monthly');
+    $name = static::getDefaultName();
     $default = commerce_invoice_number_pattern_load($name);
     if (!$default) {
       watchdog('commerce_invoice', 'Failed to find default invoice number pattern: @name', ['@name' => $name], WATCHDOG_ERROR);
@@ -27,17 +36,5 @@ class InvoiceNumberPattern extends \Entity {
     }
 
     return $default;
-  }
-
-  /**
-   * Set this as the default invoice number pattern.
-   */
-  public function setAsDefault() {
-    if (empty($this->name)) {
-      watchdog('commerce_invoice', 'Cannot set an invoice number pattern as the default: it has no name.', [], WATCHDOG_NOTICE);
-    }
-    else {
-      variable_set('commerce_invoice_default_number_pattern', $this->name);
-    }
   }
 }
