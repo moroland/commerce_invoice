@@ -231,5 +231,125 @@ function commerce_invoice_views_default_views() {
 
   $views[$view->name] = $view;
 
+  $view = new view();
+  $view->name = 'commerce_invoice_items';
+  $view->description = '';
+  $view->tag = 'default';
+  $view->base_table = 'commerce_line_item';
+  $view->human_name = 'Invoice items';
+  $view->core = 7;
+  $view->api_version = '3.0';
+  $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+  /* Display: Master */
+  $handler = $view->new_display('default', 'Master', 'default');
+  $handler->display->display_options['title'] = 'Invoice items';
+  $handler->display->display_options['use_more_always'] = FALSE;
+  $handler->display->display_options['access']['type'] = 'none';
+  $handler->display->display_options['cache']['type'] = 'none';
+  $handler->display->display_options['query']['type'] = 'views_query';
+  $handler->display->display_options['exposed_form']['type'] = 'basic';
+  $handler->display->display_options['pager']['type'] = 'full';
+  $handler->display->display_options['style_plugin'] = 'table';
+  $handler->display->display_options['style_options']['columns'] = array(
+    'line_item_title' => 'line_item_title',
+    'commerce_product' => 'commerce_product',
+    'commerce_unit_price' => 'commerce_unit_price',
+    'quantity' => 'quantity',
+    'commerce_total' => 'commerce_total',
+  );
+  $handler->display->display_options['style_options']['default'] = '-1';
+  $handler->display->display_options['style_options']['info'] = array(
+    'line_item_title' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'commerce_product' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'commerce_unit_price' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'quantity' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'commerce_total' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+  );
+  /* Relationship: Entity Reference: Referencing entity */
+  $handler->display->display_options['relationships']['reverse_commerce_invoice_items_commerce_invoice']['id'] = 'reverse_commerce_invoice_items_commerce_invoice';
+  $handler->display->display_options['relationships']['reverse_commerce_invoice_items_commerce_invoice']['table'] = 'commerce_line_item';
+  $handler->display->display_options['relationships']['reverse_commerce_invoice_items_commerce_invoice']['field'] = 'reverse_commerce_invoice_items_commerce_invoice';
+  $handler->display->display_options['relationships']['reverse_commerce_invoice_items_commerce_invoice']['required'] = TRUE;
+  /* Field: Commerce Line Item: Title */
+  $handler->display->display_options['fields']['line_item_title']['id'] = 'line_item_title';
+  $handler->display->display_options['fields']['line_item_title']['table'] = 'commerce_line_item';
+  $handler->display->display_options['fields']['line_item_title']['field'] = 'line_item_title';
+  /* Field: Commerce Line item: Product */
+  $handler->display->display_options['fields']['commerce_product']['id'] = 'commerce_product';
+  $handler->display->display_options['fields']['commerce_product']['table'] = 'field_data_commerce_product';
+  $handler->display->display_options['fields']['commerce_product']['field'] = 'commerce_product';
+  $handler->display->display_options['fields']['commerce_product']['type'] = 'commerce_product_reference_title_link';
+  $handler->display->display_options['fields']['commerce_product']['settings'] = array(
+    'show_quantity' => 0,
+    'default_quantity' => '1',
+    'combine' => 1,
+    'show_single_product_attributes' => 0,
+    'line_item_type' => 'product',
+  );
+  /* Field: Commerce Line item: Unit price */
+  $handler->display->display_options['fields']['commerce_unit_price']['id'] = 'commerce_unit_price';
+  $handler->display->display_options['fields']['commerce_unit_price']['table'] = 'field_data_commerce_unit_price';
+  $handler->display->display_options['fields']['commerce_unit_price']['field'] = 'commerce_unit_price';
+  /* Field: Commerce Line Item: Quantity */
+  $handler->display->display_options['fields']['quantity']['id'] = 'quantity';
+  $handler->display->display_options['fields']['quantity']['table'] = 'commerce_line_item';
+  $handler->display->display_options['fields']['quantity']['field'] = 'quantity';
+  $handler->display->display_options['fields']['quantity']['precision'] = '0';
+  /* Field: Commerce Line item: Total */
+  $handler->display->display_options['fields']['commerce_total']['id'] = 'commerce_total';
+  $handler->display->display_options['fields']['commerce_total']['table'] = 'field_data_commerce_total';
+  $handler->display->display_options['fields']['commerce_total']['field'] = 'commerce_total';
+  $handler->display->display_options['fields']['commerce_total']['click_sort_column'] = 'amount';
+  $handler->display->display_options['fields']['commerce_total']['settings'] = array(
+    'calculation' => FALSE,
+  );
+  /* Contextual filter: Invoice: Invoice ID */
+  $handler->display->display_options['arguments']['invoice_id']['id'] = 'invoice_id';
+  $handler->display->display_options['arguments']['invoice_id']['table'] = 'commerce_invoice';
+  $handler->display->display_options['arguments']['invoice_id']['field'] = 'invoice_id';
+  $handler->display->display_options['arguments']['invoice_id']['relationship'] = 'reverse_commerce_invoice_items_commerce_invoice';
+  $handler->display->display_options['arguments']['invoice_id']['default_action'] = 'not found';
+  $handler->display->display_options['arguments']['invoice_id']['default_argument_type'] = 'fixed';
+  $handler->display->display_options['arguments']['invoice_id']['summary']['number_of_records'] = '0';
+  $handler->display->display_options['arguments']['invoice_id']['summary']['format'] = 'default_summary';
+  $handler->display->display_options['arguments']['invoice_id']['summary_options']['items_per_page'] = '25';
+
+  /* Display: EVA Field */
+  $handler = $view->new_display('entity_view', 'EVA Field', 'eva');
+  $handler->display->display_options['entity_type'] = 'commerce_invoice';
+  $handler->display->display_options['bundles'] = array(
+    0 => 'commerce_invoice',
+  );
+  $views[$view->name] = $view;
+
   return $views;
 }
