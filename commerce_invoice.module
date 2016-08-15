@@ -264,6 +264,7 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
     ]);
     foreach ($existing as $previous) {
       $previous->invoice_status = Invoice::STATUS_CANCELED;
+      $previous->current = 0;
       $previous->log = $log;
       $previous->save();
     }
@@ -273,17 +274,16 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
 }
 
 /**
- * Determine whether an order has changed since its latest invoice.
+ * Determine whether an order has changed since its current invoice.
  *
  * @param object $order
  *   The Commerce order object.
  *
  * @return bool
- *   TRUE if the order has changed since the last invoice, FALSE otherwise.
+ *   TRUE if the order has changed since the current invoice, FALSE otherwise.
  */
 function commerce_invoice_order_changed($order) {
-  $invoices = commerce_invoice_load_for_order($order, 1, 'created', TRUE);
-  $invoice = reset($invoices);
+  $invoice = commerce_invoice_load_current($order);
   if (!$invoice) {
     return TRUE;
   }
@@ -296,12 +296,35 @@ function commerce_invoice_order_changed($order) {
 }
 
 /**
+ * Load the current invoice for an order.
+ *
+ * @param object $order
+ *
+ * @return Invoice|FALSE
+ */
+function commerce_invoice_load_current($order) {
+  $invoices = commerce_invoice_load_for_order($order, ['current' => 1], 0, 'created', TRUE);
+  $invoice = reset($invoices);
+  if (count($invoices) > 1) {
+    watchdog('commerce_invoice', 'Found more than one current invoice (@count) for the order @id. Using invoice ID @first.', [
+      '@count' => count($invoices),
+      '@id' => $order->order_id,
+      '@first' => $invoice->invoice_id,
+    ], WATCHDOG_WARNING);
+  }
+
+  return reset($invoices);
+}
+
+/**
  * Load the existing invoices for an order.
  *
  * @param object      $order
  *   The Commerce order object.
  * @param int         $limit
  *   Limit the number of invoices to return, or 0 for no limit.
+ * @param array       $properties
+ *   Properties to filter invoices by.
  * @param string|NULL $sort
  *   A property to sort invoices by, or NULL for no sorting.
  * @param bool        $descending
@@ -311,10 +334,13 @@ function commerce_invoice_order_changed($order) {
  *   The order's invoices, in descending order of the date they were created,
  *   or an empty array if none are found.
  */
-function commerce_invoice_load_for_order($order, $limit = 0, $sort = NULL, $descending = FALSE) {
+function commerce_invoice_load_for_order($order, array $properties = [], $limit = 0, $sort = NULL, $descending = FALSE) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'commerce_invoice');
   $query->propertyCondition('order_id', $order->order_id);
+  foreach ($properties as $property => $value) {
+    $query->propertyCondition($property, $value);
+  }
   if ($sort !== NULL) {
     $query->propertyOrderBy($sort, $descending ? 'DESC' : 'ASC');
   }
