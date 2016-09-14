@@ -1,0 +1,194 @@
+<?php
+
+/**
+ * @file
+ * The Commerce Invoice PDF module.
+ */
+
+use Drupal\commerce_invoice\Entity\Invoice;
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_invoice_pdf_menu() {
+  $items = [];
+
+  $items['invoices/%entity_object/pdf'] = [
+    'title' => 'PDF',
+    'load arguments' => ['commerce_invoice'],
+    'page callback' => 'commerce_invoice_pdf_deliver',
+    'page arguments' => [1],
+    'access callback' => 'entity_access',
+    'access arguments' => ['view', 'commerce_invoice', 1],
+    'type' => MENU_CALLBACK,
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function commerce_invoice_pdf_entity_property_info_alter(&$info) {
+  $info['commerce_invoice']['properties']['pdf'] = array(
+    'type' => 'file',
+    'label' => t('PDF'),
+    'description' => t('The PDF file for this invoice.'),
+    'schema field' => 'pdf',
+  );
+}
+
+/**
+ * Page callback to generate and deliver a PDF file for an invoice.
+ */
+function commerce_invoice_pdf_deliver(Invoice $invoice) {
+  $file = commerce_invoice_pdf_create($invoice);
+  if (!$file || !is_file($file->uri)) {
+    // If this error happens, it's probably to do with file permissions.
+    drupal_set_message(t('The invoice PDF file could not be found.'), 'error');
+    return MENU_NOT_FOUND;
+  }
+
+  // Transfer the file.
+  $headers = array(
+    'Content-Type' => $file->filemime,
+    'Content-Length' => $file->filesize,
+  );
+
+  // The 'download' GET parameter will attempt to force a download, rather than
+  // viewing the file directly.
+  if (!empty($_GET['download'])) {
+    $headers = array(
+      'Content-Type' => 'force-download',
+      'Content-Disposition' => 'attachment; filename="' . $file->filename . '"',
+      'Content-Transfer-Encoding' => 'binary',
+      'Accept-Ranges' => 'bytes',
+    );
+  }
+
+  // The following invocation of hook_file_download() uses the same logic as the
+  // core function file_download().
+  // @see file_download()
+  foreach (module_implements('file_download') as $module) {
+    $function = $module . '_file_download';
+    $result = $function($file->uri);
+    if ($result == -1) {
+      $headers = array();
+      break;
+    }
+    if (isset($result) && is_array($result)) {
+      $headers = array_merge($headers, $result);
+    }
+  }
+  if (count($headers)) {
+    file_transfer($file->uri, $headers);
+  }
+
+  return MENU_ACCESS_DENIED;
+}
+
+/**
+ * Generate a PDF for an invoice.
+ *
+ * @param \Drupal\commerce_invoice\Entity\Invoice $invoice
+ *
+ * @return string
+ *   The PDF contents, as a string.
+ */
+function commerce_invoice_pdf_generate(Invoice $invoice) {
+  $dompdf = commerce_invoice_pdf_load_dompdf();
+  if (!$dompdf) {
+    throw new RuntimeException('The DOMPDF library was not found.');
+  }
+
+  $build = entity_view('commerce_invoice', [$invoice], 'pdf');
+  $html = drupal_render($build);
+  $dompdf->set_paper('a4', 'portrait');
+  $dompdf->load_html($html);
+  $dompdf->render();
+
+  return $dompdf->output();
+}
+
+/**
+ * Create a PDF for an invoice.
+ *
+ * @param Invoice $invoice
+ * @param bool $create
+ *   Whether to create a new file if it doesn't already exist (default: TRUE).
+ *   You can check whether the file exists already by setting this to FALSE.
+ * @param bool $recreate
+ *   Whether to recreate (replace) the file if it already exists (default:
+ *   FALSE).
+ *
+ *
+ * @return object|FALSE
+ *   An object describing the managed file for the PDF (including the 'uri'
+ *   property), or FALSE on failure.
+ */
+function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate = FALSE) {
+  if (!$recreate && !empty($invoice->pdf)) {
+    $file = file_load($invoice->pdf);
+    if ($file && file_exists($file->uri)) {
+      return $file;
+    }
+  }
+  if (!$create) {
+    return FALSE;
+  }
+
+  $invoice->pdf = NULL;
+
+  if (!drupal_realpath('private://')) {
+    watchdog('commerce_invoice', 'The private filesystem directory is not configured.', [], WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  $dir = 'private://commerce_invoice/' . date('Y-m', $invoice->created);
+  $filename = preg_replace('/[^a-z0-9-]+/i', '_', 'invoice_' . $invoice->getInvoiceNumber()) . '.pdf';
+  if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+    watchdog('commerce_invoice', 'The directory does not exist or is not writable: @dir', ['@dir' => $dir], WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  $data = commerce_invoice_pdf_generate($invoice);
+  $file = file_save_data($data, $dir . '/' . $filename, FILE_EXISTS_REPLACE);
+  if (!$file) {
+    watchdog('commerce_invoice', 'Failed to create PDF file for invoice @id, path @path', [
+      '@id' => $invoice->invoice_id,
+      '@path' => $dir . '/' . $filename,
+    ], WATCHDOG_ERROR);
+    return FALSE;
+  }
+
+  $invoice->pdf = $file->fid;
+  $invoice->save();
+  file_usage_add($file, 'commerce_invoice_pdf', 'commerce_invoice', $invoice->invoice_id);
+
+  return $file;
+}
+
+/**
+ * Helper function that instantiates new DOMPDF class.
+ *
+ * Uses config functionality from Commerce Billy.
+ *
+ * @see commerce_billy_pdf_prepare_dompdf()
+ *
+ * @return DOMPDF|FALSE
+ */
+function commerce_invoice_pdf_load_dompdf() {
+  $path = libraries_get_path('dompdf');
+  if (!empty($path)) {
+    $dir = drupal_realpath('public://');
+    if ($dir && !defined('DOMPDF_FONT_DIR')) {
+      define('DOMPDF_FONT_DIR', $dir . '/fonts/');
+    }
+    include_once DRUPAL_ROOT . '/' . $path . '/dompdf_config.inc.php';
+    spl_autoload_register('DOMPDF_autoload');
+
+    return new DOMPDF();
+  }
+
+  return FALSE;
+}
