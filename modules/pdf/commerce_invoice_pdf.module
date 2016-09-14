@@ -27,18 +27,6 @@ function commerce_invoice_pdf_menu() {
 }
 
 /**
- * Implements hook_entity_property_info_alter().
- */
-function commerce_invoice_pdf_entity_property_info_alter(&$info) {
-  $info['commerce_invoice']['properties']['pdf'] = array(
-    'type' => 'file',
-    'label' => t('PDF'),
-    'description' => t('The PDF file for this invoice.'),
-    'schema field' => 'pdf',
-  );
-}
-
-/**
  * Page callback to generate and deliver a PDF file for an invoice.
  */
 function commerce_invoice_pdf_deliver(Invoice $invoice) {
@@ -191,4 +179,11 @@ function commerce_invoice_pdf_load_dompdf() {
   }
 
   return FALSE;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function commerce_invoice_pdf_views_api() {
+  return ['api' => 3];
 }
