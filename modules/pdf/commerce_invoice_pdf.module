@@ -23,7 +23,25 @@ function commerce_invoice_pdf_menu() {
     'type' => MENU_CALLBACK,
   ];
 
+  $items['invoices/%entity_object/pdf/html'] = [
+    'title' => 'PDF - HTML source',
+    'load arguments' => ['commerce_invoice'],
+    'page callback' => 'commerce_invoice_pdf_html',
+    'page arguments' => [1],
+    'access arguments' => ['administer commerce_invoice entities'],
+    'type' => MENU_CALLBACK,
+  ];
+
   return $items;
+}
+
+/**
+ * Debug page callback to view the HTML used for generating the PDF.
+ */
+function commerce_invoice_pdf_html(Invoice $invoice) {
+  drupal_add_http_header('Content-Type', 'text/html; charset=utf-8');
+  echo theme('commerce_invoice_pdf_page', ['invoice' => $invoice, 'browser' => TRUE]);
+  drupal_exit();
 }
 
 /**
@@ -89,8 +107,7 @@ function commerce_invoice_pdf_generate(Invoice $invoice) {
     throw new RuntimeException('The DOMPDF library was not found.');
   }
 
-  $build = entity_view('commerce_invoice', [$invoice], 'pdf');
-  $html = drupal_render($build);
+  $html = theme('commerce_invoice_pdf_page', ['invoice' => $invoice]);
   $dompdf->set_paper('a4', 'portrait');
   $dompdf->load_html($html);
   $dompdf->render();
@@ -114,7 +131,7 @@ function commerce_invoice_pdf_generate(Invoice $invoice) {
  *   An object describing the managed file for the PDF (including the 'uri'
  *   property), or FALSE on failure.
  */
-function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate = FALSE) {
+function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate = TRUE) {
   if (!$recreate && !empty($invoice->pdf)) {
     $file = file_load($invoice->pdf);
     if ($file && file_exists($file->uri)) {
@@ -186,4 +203,42 @@ function commerce_invoice_pdf_load_dompdf() {
  */
 function commerce_invoice_pdf_views_api() {
   return ['api' => 3];
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_invoice_pdf_theme() {
+  $items['commerce_invoice_pdf_page'] = array(
+    'variables' => array('invoice' => NULL, 'inline_css' => '', 'browser' => FALSE),
+    'template' => 'commerce_invoice_pdf_page',
+    'path' => drupal_get_path('module', 'commerce_invoice_pdf') . '/templates',
+  );
+
+  return $items;
+}
+
+/**
+ * Preprocess function for the invoice PDF page template.
+ */
+function template_preprocess_commerce_invoice_pdf_page(&$variables) {
+  /** @var Invoice $invoice */
+  $invoice = $variables['invoice'];
+  $variables['invoice'] = entity_view('commerce_invoice', [$invoice], 'pdf');
+  $variables['title'] = commerce_invoice_title($invoice);
+
+  $variables['invoice_number'] = check_plain($invoice->getInvoiceNumber());
+  $variables['order_number'] = check_plain($invoice->wrapper()->order->order_number->value());
+
+  $variables['logo'] = '';
+  $logo = variable_get('commerce_invoice_pdf_logo', 'misc/druplicon.png');
+  if ($logo) {
+    $logo = !empty($variables['browser']) ? file_create_url($logo) : drupal_realpath($logo);
+    $variables['logo'] = theme('image', ['path' => $logo]);
+  }
+
+  $settings = variable_get('commerce_invoice_pdf_text_settings', array());
+  foreach (['header', 'footer', 'text'] as $part) {
+    $variables['invoice_' . $part] = isset($settings['invoice_' . $part]) ? $settings['invoice_' . $part] : '';
+  }
 }
