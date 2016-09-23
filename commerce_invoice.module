@@ -369,6 +369,16 @@ function commerce_invoice_menu() {
     'file' => 'commerce_invoice.admin.inc',
   ];
 
+  $items['invoices/%entity_object'] = [
+    'load arguments' => ['commerce_invoice'],
+    'title callback' => 'commerce_invoice_title',
+    'title arguments' => [1],
+    'page callback' => 'entity_ui_entity_page_view',
+    'page arguments' => [1],
+    'access callback' => 'entity_access',
+    'access arguments' => ['view', 'commerce_invoice', 1],
+  ];
+
   return $items;
 }
 

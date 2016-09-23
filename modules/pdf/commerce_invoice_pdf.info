@@ -1,0 +1,8 @@
+name = Commerce Invoice PDF
+description = Generate PDFs for invoices
+package = Commerce (contrib)
+core = 7.x
+
+dependencies[] = commerce_invoice
+dependencies[] = libraries
+dependencies[] = xautoload

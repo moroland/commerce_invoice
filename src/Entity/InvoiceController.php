@@ -70,32 +70,44 @@ class InvoiceController extends \EntityAPIController {
    * {@inheritdoc}
    */
   function buildContent($entity, $view_mode = 'full', $langcode = NULL, $content = []) {
-    /** @var Invoice $entity */
-    $info = [];
+    if ($view_mode === 'full') {
+      $this->addInvoiceInfo($entity, $content);
+    }
 
-    $info[t('Invoice ID')] = check_plain($entity->invoice_id);
+    return parent::buildContent($entity, $view_mode, $langcode, $content);
+  }
+
+  /**
+   * Add a table of invoice information to the content render array.
+   *
+   * @param Invoice $invoice
+   * @param array   &$content
+   */
+  protected function addInvoiceInfo(Invoice $invoice, array &$content) {
+    $info = [];
+    $info[t('Invoice ID')] = check_plain($invoice->invoice_id);
     $info[t('Owner')] = [
       '#theme' => 'username',
-      '#account' => $entity->wrapper()->owner->value(),
+      '#account' => $invoice->wrapper()->owner->value(),
     ];
-    $info[t('Invoice number')] = $entity->hasInvoiceNumber()
-      ? check_plain($entity->getInvoiceNumber()->__toString())
+    $info[t('Invoice number')] = $invoice->hasInvoiceNumber()
+      ? check_plain($invoice->getInvoiceNumber()->__toString())
       : t('Not yet generated');
-    $info[t('Invoice date')] = check_plain(format_date($entity->invoice_date));
-    $info[t('Status')] = commerce_invoice_statuses()[$entity->invoice_status];
-    $info[t('Order')] = isset($entity->order_id)
-      ? l($entity->wrapper()->order->order_number->value(), 'admin/commerce/orders/' . $entity->order_id)
+    $info[t('Invoice date')] = check_plain(format_date($invoice->invoice_date));
+    $info[t('Status')] = commerce_invoice_statuses()[$invoice->invoice_status];
+    $info[t('Order')] = isset($invoice->order_id)
+      ? l($invoice->wrapper()->order->order_number->value(), 'admin/commerce/orders/' . $invoice->order_id)
       : t('None');
-    $info[t('Order revision')] = isset($entity->order_revision_id)
-      ? check_plain($entity->order_revision_id)
+    $info[t('Order revision')] = isset($invoice->order_revision_id)
+      ? check_plain($invoice->order_revision_id)
       : t('None');
-    $pattern = $entity->getNumberPattern();
+    $pattern = $invoice->getNumberPattern();
     $info[t('Invoice number pattern')] = format_string('@label: <code>@pattern</code>', [
       '@label' => $pattern->label,
       '@pattern' => $pattern->pattern
     ]);
-    $info[t('Created')] = check_plain(format_date($entity->created));
-    $info[t('Last modified')] = check_plain(format_date($entity->changed));
+    $info[t('Created')] = check_plain(format_date($invoice->created));
+    $info[t('Last modified')] = check_plain(format_date($invoice->changed));
 
     if (!empty($info)) {
       $content['info'] = ['#theme' => 'table', '#rows' => []];
@@ -106,8 +118,6 @@ class InvoiceController extends \EntityAPIController {
         ];
       }
     }
-
-    return parent::buildContent($entity, $view_mode, $langcode, $content);
   }
 
 }

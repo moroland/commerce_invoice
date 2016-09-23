@@ -27,6 +27,7 @@ class Invoice extends \Entity {
   public $revision_created;
   public $revision_uid;
   public $log;
+  public $content;
 
   /**
    * Returns the invoice number pattern for this invoice.
