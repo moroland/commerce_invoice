@@ -88,7 +88,7 @@ function commerce_invoice_required_field_instances() {
         'settings' => array(
           'link' => FALSE,
         ),
-        'type' => 'entityreference_label',
+        'type' => 'hidden',
         'weight' => 3,
       ),
     ),
