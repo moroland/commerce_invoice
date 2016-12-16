@@ -264,7 +264,6 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
     ]);
     foreach ($existing as $previous) {
       $previous->invoice_status = Invoice::STATUS_CANCELED;
-      $previous->current = 0;
       $previous->log = $log;
       $previous->save();
     }

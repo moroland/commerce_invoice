@@ -80,13 +80,6 @@ function commerce_invoice_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'current' => array(
-        'description' => 'Whether the invoice is the current one for the order.',
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
-      ),
       'created' => array(
         'description' => 'The Unix timestamp when the invoice was created.',
         'type' => 'int',
@@ -107,7 +100,6 @@ function commerce_invoice_schema() {
     'indexes' => array(
       'uid' => array('uid'),
       'order_revision' => array('order_id', 'order_revision_id'),
-      'current' => array('current'),
     ),
     'foreign keys' => array(
       'order' => array(
@@ -155,13 +147,6 @@ function commerce_invoice_schema() {
         'type' => 'varchar',
         'length' => 100,
         'not null' => TRUE,
-      ),
-      'current' => array(
-        'description' => 'Whether the invoice is the current one for the order at this revision.',
-        'type' => 'int',
-        'size' => 'tiny',
-        'not null' => TRUE,
-        'default' => 0,
       ),
       'uid' => array(
         'description' => 'The invoice owner for this revision.',

@@ -15,7 +15,6 @@ class Invoice extends \Entity {
   public $type = 'commerce_invoice';
   public $order_id;
   public $order_revision_id;
-  public $current = 0;
   public $number_pattern;
   public $number_sequence;
   public $number_key;
