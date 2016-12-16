@@ -264,7 +264,6 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
     ]);
     foreach ($existing as $previous) {
       $previous->invoice_status = Invoice::STATUS_CANCELED;
-      $previous->current = 0;
       $previous->log = $log;
       $previous->save();
     }
@@ -303,15 +302,7 @@ function commerce_invoice_order_changed($order) {
  * @return Invoice|FALSE
  */
 function commerce_invoice_load_current($order) {
-  $invoices = commerce_invoice_load_for_order($order, ['current' => 1], 0, 'created', TRUE);
-  $invoice = reset($invoices);
-  if (count($invoices) > 1) {
-    watchdog('commerce_invoice', 'Found more than one current invoice (@count) for the order @id. Using invoice ID @first.', [
-      '@count' => count($invoices),
-      '@id' => $order->order_id,
-      '@first' => $invoice->invoice_id,
-    ], WATCHDOG_WARNING);
-  }
+  $invoices = commerce_invoice_load_for_order($order, [['invoice_status', Invoice::STATUS_CANCELED, '<>']], 1, 'created', TRUE);
 
   return reset($invoices);
 }
@@ -321,25 +312,26 @@ function commerce_invoice_load_current($order) {
  *
  * @param object      $order
  *   The Commerce order object.
+ * @param array       $properties
+ *   Properties to filter invoices by. Each property should be an array of 3
+ *   elements: name, value, and operator.
  * @param int         $limit
  *   Limit the number of invoices to return, or 0 for no limit.
- * @param array       $properties
- *   Properties to filter invoices by.
  * @param string|NULL $sort
  *   A property to sort invoices by, or NULL for no sorting.
  * @param bool        $descending
  *   Leave FALSE to sort ascending. Set TRUE to sort in descending order.
  *
  * @return Invoice[]
- *   The order's invoices, in descending order of the date they were created,
- *   or an empty array if none are found.
+ *   The order's invoices or an empty array if none are found.
  */
 function commerce_invoice_load_for_order($order, array $properties = [], $limit = 0, $sort = NULL, $descending = FALSE) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'commerce_invoice');
   $query->propertyCondition('order_id', $order->order_id);
-  foreach ($properties as $property => $value) {
-    $query->propertyCondition($property, $value);
+  foreach ($properties as $property) {
+    list($column, $value, $operator) = $property;
+    $query->propertyCondition($column, $value, $operator);
   }
   if ($sort !== NULL) {
     $query->propertyOrderBy($sort, $descending ? 'DESC' : 'ASC');
