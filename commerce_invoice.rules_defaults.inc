@@ -37,5 +37,28 @@ function commerce_invoice_default_rules_configuration() {
   }
 }');
 
+  $configs['commerce_invoice_complete_order'] = entity_import('rules_config', '{ "commerce_invoice_complete_order" : {
+    "LABEL" : "Complete order when invoice is paid",
+    "PLUGIN" : "reaction rule",
+    "OWNER" : "rules",
+    "REQUIRES" : [ "rules", "commerce_order", "commerce_invoice" ],
+    "ON" : { "commerce_invoice_update" : [] },
+    "IF" : [
+      { "data_is" : { "data" : [ "commerce-invoice:status" ], "value" : "paid" } }
+    ],
+    "DO" : [
+      { "entity_fetch" : {
+          "USING" : {
+            "type" : "commerce_order",
+            "id" : [ "commerce-invoice:order:order-id" ]
+          },
+          "PROVIDE" : { "entity_fetched" : { "entity_fetched" : "Fetched entity" } }
+        }
+      },
+      { "commerce_order_update_status" : { "commerce_order" : [ "entity-fetched" ], "order_status" : "completed" } }
+    ]
+  }
+}');
+
   return $configs;
 }
