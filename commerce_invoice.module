@@ -313,11 +313,11 @@ function commerce_invoice_load_current($order) {
  *
  * @param object      $order
  *   The Commerce order object.
- * @param int         $limit
- *   Limit the number of invoices to return, or 0 for no limit.
  * @param array       $properties
  *   Properties to filter invoices by. Each property should be an array of 3
  *   elements: name, value, and operator.
+ * @param int         $limit
+ *   Limit the number of invoices to return, or 0 for no limit.
  * @param string|NULL $sort
  *   A property to sort invoices by, or NULL for no sorting.
  * @param bool        $descending
