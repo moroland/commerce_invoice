@@ -9,6 +9,8 @@ class Invoice extends \Entity {
   const STATUS_CANCELED = 'canceled';
   const STATUS_PAID = 'paid';
   const STATUS_PENDING = 'pending';
+  const STATUS_REFUND_PENDING = 'refund_pending';
+  const STATUS_REFUNDED = 'refunded';
 
   public $invoice_id;
   public $revision_id;

@@ -138,6 +138,8 @@ function commerce_invoice_statuses() {
     Invoice::STATUS_PENDING => t('Pending'),
     Invoice::STATUS_PAID => t('Paid'),
     Invoice::STATUS_CANCELED => t('Canceled'),
+    Invoice::STATUS_REFUND_PENDING => t('Pending refund'),
+    Invoice::STATUS_REFUNDED => t('Refunded'),
   ];
 
   drupal_alter(__FUNCTION__, $statuses);
@@ -263,7 +265,17 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
       '@number' => $invoice->getInvoiceNumber()->__toString(),
     ]);
     foreach ($existing as $previous) {
-      $previous->invoice_status = Invoice::STATUS_CANCELED;
+      switch ($previous->invoice_status) {
+        // Request refund for previously paid invoices.
+        case Invoice::STATUS_PAID:
+          $previous->invoice_status = Invoice::STATUS_REFUND_PENDING;
+          // @todo: Issue a credit note. A rule? A hook? A custom module?
+          break;
+        // Cancel pending invoices.
+        case Invoice::STATUS_PENDING:
+          $previous->invoice_status = Invoice::STATUS_CANCELED;
+          break;
+      }
       $previous->log = $log;
       $previous->save();
     }
