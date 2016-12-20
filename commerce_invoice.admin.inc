@@ -146,6 +146,9 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
 
   field_attach_form('commerce_invoice', $invoice, $form, $form_state);
 
+  // Hide the invoice total field from direct editing.
+  $form['commerce_invoice_total']['#access'] = FALSE;
+
   $form['uid'] = array(
     '#type' => 'textfield',
     '#weight' => 90,
