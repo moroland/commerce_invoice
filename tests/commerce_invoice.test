@@ -1,0 +1,137 @@
+<?php
+
+/**
+ * @file
+ * Functional tests for the commerce invoice module.
+ */
+
+use Drupal\commerce_invoice\Entity\Invoice;
+
+/**
+ * Test commerce invoices.
+ */
+class CommerceInvoiceTestCase extends CommerceBaseTestCase {
+  protected $product100;
+  protected $product50;
+
+  protected $rules = [
+    'commerce_invoice_create_new',
+    'commerce_invoice_create_updated',
+    'commerce_invoice_complete_order'
+  ];
+
+  /**
+   * Implementation of getInfo().
+   */
+  public static function getInfo() {
+    return [
+      'name' => 'Commerce Invoice',
+      'description' => 'Ensure that invoices are being created after order creation.',
+      'group' => 'Commerce Invoice',
+    ];
+  }
+
+  /**
+   * Implementation of setUp().
+   */
+  public function setUp() {
+    // Enable all Commerce modules and Commerce Invoice.
+    $modules = parent::setUpHelper('all');
+    $modules[] = 'commerce_invoice';
+    parent::setUp($modules);
+
+    $this->product100 = $this->createDummyProduct('', '', 100, 'USD');
+    $this->product50 = $this->createDummyProduct('', '', 50, 'USD');
+
+    // Make sure all needed rules are available and enabled.
+    foreach ($this->rules as $ruleName) {
+      $rule = rules_config_load($ruleName);
+      $this->assertTrue($rule->status & ENTITY_IN_CODE && !($rule->status & ENTITY_IN_DB), $ruleName . ' can be loaded and has the right status.');
+      $rule->active = TRUE;
+      $rule->save();
+    }
+  }
+
+  /**
+   * Tests creation and payment of an Invoice.
+   */
+  public function testInvoiceCreationAndPayment() {
+    // Create an order with two products, total quantity 7, total price $450
+    $order = $this->createDummyOrder(1, [
+      $this->product100->product_id => 2,
+      $this->product50->product_id => 5
+    ], 'pending');
+
+    // Rule should have created a pending invoice.
+    $invoice = commerce_invoice_load_current($order);
+    $this->assertEqual($invoice->invoice_status, Invoice::STATUS_PENDING, 'Invoices for new orders are pending by default.');
+
+    // The invoice should total $450.
+    $total = $invoice->wrapper()->commerce_invoice_total->amount->value();
+    $this->assertEqual($total, 450, 'Invoice total properly calculated.');
+
+    // Paid invoices should trigger a rule to complete order.
+    $invoice->invoice_status = Invoice::STATUS_PAID;
+    $invoice->save();
+    $order = commerce_order_load($invoice->order_id);
+    $this->assertEqual($order->status, 'completed', 'Paid invoice changed order status to completed.');
+
+    // Update a completed order.
+    $order->status = 'pending';
+    $this->addLineItemToOrder($order);
+    $invoices = commerce_invoice_load_for_order($order);
+
+    // Old invoice should be refunded.
+    $oldInvoice = reset($invoices);
+    $this->assertEqual($oldInvoice->invoice_status, Invoice::STATUS_REFUND_PENDING, 'Flag old invoice for refunding after change of order.');
+
+    // New invoice should have a pending status.
+    $newInvoice = next($invoices);
+    $this->assertEqual($newInvoice->invoice_status, Invoice::STATUS_PENDING, 'Create a new pending invoice after change of order.');
+
+    // The new invoice total should be $950.
+    $total = $newInvoice->wrapper()->commerce_invoice_total->amount->value();
+    $this->assertEqual($total, 950, 'Updated invoice total properly calculated.');
+  }
+
+  /**
+   * Tests invoice behavior when orders were updated prior to payment.
+   */
+  public function testOrderUpdateWithPendingInvoices() {
+    // Create an order. Pending invoice will be created by rules.
+    $order = $this->createDummyOrder(1, [
+      $this->product100->product_id => 2,
+    ], 'pending');
+
+    // Update the order.
+    $this->addLineItemToOrder($order);
+    $invoices = commerce_invoice_load_for_order($order);
+
+    // Old invoice should be cancelled.
+    $oldInvoice = reset($invoices);
+    $this->assertEqual($oldInvoice->invoice_status, Invoice::STATUS_CANCELED, 'Cancel pending invoice after change of order.');
+
+    // New invoice should have a pending status.
+    $newInvoice = next($invoices);
+    $this->assertEqual($newInvoice->invoice_status, Invoice::STATUS_PENDING, 'Create a new pending invoice after change of order.');
+
+    // The new invoice total should be $700.
+    $total = $newInvoice->wrapper()->commerce_invoice_total->amount->value();
+    $this->assertEqual($total, 700, 'Updated invoice total properly calculated.');
+  }
+
+  /**
+   * Adds a line item with 10 $50 worth products.
+   *
+   * @param object $order
+   *   A Commerce Order object.
+   */
+  private function addLineItemToOrder($order) {
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $line_item = commerce_product_line_item_new($this->product50, 10, $order->order_id);
+    commerce_line_item_save($line_item);
+    $order_wrapper->commerce_line_items[] = $line_item;
+    $order_wrapper->save();
+  }
+}
+

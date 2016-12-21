@@ -15,3 +15,5 @@ dependencies[] = commerce:commerce_price
 dependencies[] = inline_entity_form
 dependencies[] = token
 dependencies[] = xautoload
+
+files[] = tests/commerce_invoice.test
