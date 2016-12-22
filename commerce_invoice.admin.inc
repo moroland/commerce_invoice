@@ -123,19 +123,6 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
     '#weight' => -80,
   );
 
-  $form['number_pattern'] = [
-    '#title' => t('Invoice number pattern'),
-    '#type' => 'select',
-    '#options' => commerce_invoice_number_pattern_options_list(),
-    '#default_value' => $invoice->number_pattern ?: \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefaultName(),
-    '#description' => t('The pattern used to generate the invoice number (<a href="@url">administer patterns</a>).', [
-      '@url' => url('admin/commerce/config/invoice/numbers'),
-    ]),
-    '#disabled' => empty($invoice->is_new),
-    '#weight' => -70,
-    '#required' => TRUE,
-  ];
-
   $form['invoice_date'] = array(
     '#type' => 'date_select',
     '#weight' => -60,
@@ -149,11 +136,53 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
   // Hide the invoice total field from direct editing.
   $form['commerce_invoice_total']['#access'] = FALSE;
 
-  $form['uid'] = array(
+  $form['additional_settings'] = [
+    '#type' => 'vertical_tabs',
+    '#weight' => 99,
+  ];
+
+  $form['invoice_number'] = [
+    '#type' => 'fieldset',
+    '#title' => t('Invoice number'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#group' => 'additional_settings',
+    '#weight' => -70,
+  ];
+  $form['invoice_number']['number_pattern'] = [
+    '#title' => t('Invoice number pattern'),
+    '#type' => 'select',
+    '#options' => commerce_invoice_number_pattern_options_list(),
+    '#default_value' => $invoice->number_pattern ?: \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefaultName(),
+    '#description' => t('The pattern used to generate the invoice number (<a href="@url">administer patterns</a>).', [
+      '@url' => url('admin/commerce/config/invoice/numbers'),
+    ]),
+    '#disabled' => empty($invoice->is_new),
+    '#required' => TRUE,
+  ];
+
+  $form['user'] = [
+    '#type' => 'fieldset',
+    '#title' => t('User information'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+    '#group' => 'additional_settings',
+    '#weight' => -60,
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'commerce_invoice') . '/commerce_invoice.js',
+        array(
+          'type' => 'setting',
+          'data' => array('anonymous' => variable_get('anonymous', t('Anonymous'))),
+        ),
+      ),
+    ),
+  ];
+  $form['user']['owner'] = array(
     '#type' => 'textfield',
     '#weight' => 90,
     '#autocomplete_path' => 'user/autocomplete',
-    '#default_value' => !empty($wrapper->uid) ? $wrapper->owner->name->raw() : '',
+    '#default_value' => !empty($invoice->uid) ? $wrapper->owner->name->raw() : '',
     '#title' => t('Owner'),
     '#description' => t('If left empty, this will default to the order owner.'),
   );
@@ -176,6 +205,32 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
   }
 
   return $form;
+}
+
+/**
+ * Validation callback for the invoice form.
+ */
+function commerce_invoice_form_validate(&$form, &$form_state) {
+  $invoice = $form_state['commerce_invoice'];
+  if (!empty($form_state['values']['owner'])){
+    // Given username exists.
+    if($account = user_load_by_name($form_state['values']['owner'])) {
+      $form_state['values']['uid'] = $account->uid;
+    }
+    // Given username does not exist.
+    else {
+      form_set_error('owner', t('The username %name does not exist.', array('%name' => $form_state['values']['owner'])));
+    }
+  }
+  // Username was not provided, try getting it from the attached order.
+  elseif (!empty($invoice) && !empty($invoice->order_id)) {
+    $uid = $invoice->wrapper()->order->owner->uid->value();
+    $form_state['values']['uid'] = $uid;
+  }
+  // Default to anonymous.
+  else {
+    $form_state['values']['uid'] = 0;
+  }
 }
 
 /**
