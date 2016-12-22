@@ -429,3 +429,48 @@ function commerce_invoice_number_pattern_options_list() {
 
   return $pattern_options;
 }
+
+/**
+ * Calculates the invoice total.
+ *
+ * @param Invoice $invoice
+ *   The invoice object whose order total should be calculated.
+ */
+function commerce_invoice_calculate_total(Invoice $invoice) {
+  $wrapper = $invoice->wrapper();
+
+  // No items - no need to calculate anything.
+  if(!$wrapper->commerce_invoice_items->count()) {
+    return;
+  }
+
+  // Use first item's currency code.
+  $currency_code = $wrapper->commerce_invoice_items->get(0)->commerce_total->currency_code->value();
+
+  $wrapper->commerce_invoice_total->amount = 0;
+  $wrapper->commerce_invoice_total->currency_code = $currency_code;
+  $base_price = array(
+    'amount' => 0,
+    'currency_code' => $currency_code,
+    'data' => array(),
+  );
+  $wrapper->commerce_invoice_total->data = commerce_price_component_add($base_price, 'base_price', $base_price, TRUE);
+  $invoice_total = $wrapper->commerce_invoice_total->value();
+
+  foreach ($wrapper->commerce_invoice_items as $delta => $line_item_wrapper) {
+    // Do not allow invoices with mixed currencies.
+    if($currency_code != $line_item_wrapper->commerce_total->currency_code->value()) {
+      $wrapper->commerce_line_items->offsetUnset($delta);
+      continue;
+    }
+
+    $line_item_total = $line_item_wrapper->commerce_total->value();
+    $component_total = commerce_price_component_total($line_item_total);
+    // Add the totals.
+    $wrapper->commerce_invoice_total->amount = $wrapper->commerce_invoice_total->amount->value()+$component_total['amount'];
+    // Combine the line item total's component prices into the order total.
+    $invoice_total['data'] = commerce_price_components_combine($invoice_total, $line_item_total);
+  }
+
+  $wrapper->commerce_invoice_total->data = $invoice_total['data'];
+}

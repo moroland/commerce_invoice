@@ -246,6 +246,9 @@ function commerce_invoice_form_submit(&$form, &$form_state) {
   if (!empty($invoice_date)) {
     $invoice->invoice_date = $invoice_date;
   }
+
+  commerce_invoice_calculate_total($invoice);
+
   $invoice->save();
 
   $form_state['redirect'] = 'admin/commerce/invoices';
