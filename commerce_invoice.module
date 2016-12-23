@@ -251,6 +251,10 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
     $invoice->wrapper()->commerce_invoice_items[] = $invoice_item;
   }
 
+  // Copy the billing address.
+  $address =  $order_wrapper->commerce_customer_billing->commerce_customer_address->value();
+  $invoice->wrapper()->commerce_invoice_address->set($address);
+
   $invoice->wrapper()->commerce_invoice_total = $order_wrapper->commerce_order_total->value();
 
   if ($cancel_existing) {

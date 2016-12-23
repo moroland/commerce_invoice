@@ -65,6 +65,18 @@ function commerce_invoice_required_field_bases() {
     'type' => 'commerce_price',
   );
 
+  $field_bases['commerce_invoice_address'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array('commerce_invoice'),
+    'field_name' => 'commerce_invoice_address',
+    'locked' => 0,
+    'module' => 'addressfield',
+    'translatable' => 0,
+    'type' => 'addressfield',
+  );
+
   return $field_bases;
 }
 
@@ -116,7 +128,31 @@ function commerce_invoice_required_field_instances() {
         ),
       ),
       'type' => 'inline_entity_form',
+      'weight' => 40,
+    ),
+  );
+
+  $field_instances['commerce_invoice-commerce_invoice-commerce_invoice_address'] = array(
+    'bundle' => 'commerce_invoice',
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'type' => 'addressfield_default',
+        'weight' => -10,
+      ),
+    ),
+    'entity_type' => 'commerce_invoice',
+    'field_name' => 'commerce_invoice_address',
+    'label' => t('Address'),
+    'required' => 0,
+    'widget' => array(
+      'active' => 1,
+      'type' => 'addressfield_standard',
       'weight' => 50,
+      'settings' => array(
+        'format_handlers' => array('address', 'name-oneline'),
+      ),
     ),
   );
 
