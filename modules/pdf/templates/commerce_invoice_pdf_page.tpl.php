@@ -10,23 +10,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
   <title><?php print $title; ?></title>
   <?php if ($inline_css): ?>
-  <style type="text/css">
-    <?php print $inline_css; ?>
-  </style>
+    <style type="text/css">
+      <?php print $inline_css; ?>
+    </style>
   <?php endif; ?>
 </head>
 <body>
 
-<header class="header">
-  <?php print $logo; ?>
+<header>
+  <div class="logo">
+    <?php print $logo; ?>
+  </div>
+  <div class="header">
+    <?php print $invoice_header; ?>
+  </div>
 </header>
 
 <section class="invoice">
-  <?php print render($invoice); ?>
+  <div class="pull-right">
+    <?php print t('Invoice number:') . ' ' . $invoice_number; ?><br>
+    <?php print t('Order number:') . ' ' . $order_number; ?><br>
+    <?php print t('Invoice date:') . ' ' . $invoice_date; ?>
+  </div>
+  <?php print render($content); ?>
 </section>
+
+<footer>
+  <?php print $invoice_footer; ?>
+</footer>
 
 </body>
 </html>

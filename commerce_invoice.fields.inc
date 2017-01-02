@@ -169,7 +169,7 @@ function commerce_invoice_required_field_instances() {
           'calculation' => FALSE,
         ),
         'type' => 'commerce_price_formatted_components',
-        'weight' => 1,
+        'weight' => 20,
       ),
     ),
     'entity_type' => 'commerce_invoice',
