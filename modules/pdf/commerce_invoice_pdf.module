@@ -255,9 +255,7 @@ function commerce_invoice_pdf_theme() {
 function template_preprocess_commerce_invoice_pdf_page(&$variables) {
   /** @var Invoice $invoice */
   $invoice = $variables['invoice'];
-  // We cannot use $invoice->buildContent() because EVA appears to use
-  // hook_entity_view_alter() to display the view.
-  $variables['content'] = $invoice->view('pdf', NULL, TRUE);
+  $variables['content'] = $invoice->buildContent('pdf', NULL);
   $variables['title'] = commerce_invoice_title($invoice);
   $variables['invoice_date'] = format_date($invoice->invoice_date);
   $variables['invoice_number'] = check_plain($invoice->getInvoiceNumber());

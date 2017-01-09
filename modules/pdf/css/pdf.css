@@ -48,7 +48,7 @@ td {
     height: 30px;
 }
 
-.view-commerce-invoice-items {
+.field-name-commerce-invoice-items {
     margin-top: 50px;
 }
 
@@ -74,4 +74,8 @@ td.component-title {
 td.component-total {
     text-align: right;
     width: 200px;
+}
+
+.contextual-links-wrapper {
+    display: none;
 }

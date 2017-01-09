@@ -20,30 +20,15 @@ function commerce_invoice_required_field_bases() {
     'entity_types' => array('commerce_invoice'),
     'field_name' => 'commerce_invoice_items',
     'indexes' => array(
-      'target_id' => array(
-        0 => 'target_id',
+      'line_item_id' => array(
+        0 => 'line_item_id',
       ),
     ),
     'locked' => 1,
-    'module' => 'entityreference',
-    'settings' => array(
-      'behaviors' => array(),
-      'handler' => 'base',
-      'handler_settings' => array(
-        'behaviors' => array(
-          'views-select-list' => array(
-            'status' => 0,
-          ),
-        ),
-        'sort' => array(
-          'type' => 'none',
-        ),
-        'target_bundles' => array(),
-      ),
-      'target_type' => 'commerce_line_item',
-    ),
+    'module' => 'commerce_line_item',
+    'settings' => array(),
     'translatable' => 0,
-    'type' => 'entityreference',
+    'type' => 'commerce_line_item_reference',
   );
 
   $field_bases['commerce_invoice_total'] = array(
@@ -96,12 +81,14 @@ function commerce_invoice_required_field_instances() {
     'display' => array(
       'default' => array(
         'label' => 'above',
-        'module' => 'entityreference',
+        'module' => 'commerce_line_item',
         'settings' => array(
-          'link' => FALSE,
+          // @todo: Create a new view as commerce_line_item_table displays only
+          //        line items of product type.
+          'view' => 'commerce_line_item_table|default',
         ),
-        'type' => 'hidden',
-        'weight' => 3,
+        'type' => 'commerce_line_item_reference_view',
+        'weight' => 0,
       ),
     ),
     'entity_type' => 'commerce_invoice',

@@ -6,8 +6,6 @@ php = 5.5.9
 
 dependencies[] = date
 dependencies[] = entity
-dependencies[] = entityreference
-dependencies[] = eva
 dependencies[] = commerce
 dependencies[] = commerce:commerce_line_item
 dependencies[] = commerce:commerce_order
