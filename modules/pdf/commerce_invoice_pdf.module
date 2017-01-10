@@ -268,8 +268,11 @@ function template_preprocess_commerce_invoice_pdf_page(&$variables) {
     $variables['logo'] = theme('image', ['path' => $logo]);
   }
 
-  $css_file = drupal_get_path('module', 'commerce_invoice_pdf') . '/css/pdf.css';
-  $variables['inline_css'] .= file_get_contents($css_file);
+  $css_files = variable_get('commerce_invoice_pdf_css_files', array(drupal_get_path('module', 'commerce_invoice_pdf') . '/css/pdf.css'));
+  $variables['inline_css'] = "";
+  foreach ($css_files as $file) {
+    $variables['inline_css'] .= file_get_contents($file);
+  }
 
   $settings = variable_get('commerce_invoice_pdf_text_settings', array());
   foreach (['header', 'footer', 'text'] as $part) {
