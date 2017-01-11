@@ -80,7 +80,7 @@ function commerce_invoice_required_field_instances() {
     'description' => '',
     'display' => array(
       'default' => array(
-        'label' => 'above',
+        'label' => 'hidden',
         'module' => 'commerce_line_item',
         'settings' => array(
           // @todo: Create a new view as commerce_line_item_table displays only
