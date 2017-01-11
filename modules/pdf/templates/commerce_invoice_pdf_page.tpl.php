@@ -33,7 +33,8 @@
   <div class="pull-right">
     <?php print t('Invoice number:') . ' ' . $invoice_number; ?><br>
     <?php print t('Order number:') . ' ' . $order_number; ?><br>
-    <?php print t('Invoice date:') . ' ' . $invoice_date; ?>
+    <?php print t('Invoice date:') . ' ' . $invoice_date; ?><br>
+    <?php print t('Status:') . ' ' . $invoice->invoice_status; ?>
   </div>
   <?php print render($content); ?>
 </section>
