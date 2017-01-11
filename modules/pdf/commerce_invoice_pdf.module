@@ -268,6 +268,10 @@ function template_preprocess_commerce_invoice_pdf_page(&$variables) {
     $variables['logo'] = theme('image', ['path' => $logo]);
   }
 
+  $price = $invoice->wrapper()->commerce_invoice_total->amount->value();
+  $currency_code = $invoice->wrapper()->commerce_invoice_total->currency_code->value();
+  $variables['total'] = commerce_currency_format($price, $currency_code);
+
   $css_files = variable_get('commerce_invoice_pdf_css_files', array(drupal_get_path('module', 'commerce_invoice_pdf') . '/css/pdf.css'));
   $variables['inline_css'] = "";
   foreach ($css_files as $file) {
