@@ -257,7 +257,7 @@ function template_preprocess_commerce_invoice_pdf_page(&$variables) {
   $invoice = $variables['invoice'];
   $variables['content'] = $invoice->buildContent('pdf', NULL);
   $variables['title'] = commerce_invoice_title($invoice);
-  $variables['invoice_date'] = format_date($invoice->invoice_date);
+  $variables['invoice_date'] = format_date($invoice->invoice_date, 'custom', 'Y-m-d');
   $variables['invoice_number'] = check_plain($invoice->getInvoiceNumber());
   $variables['order_number'] = check_plain($invoice->wrapper()->order->order_number->value());
 
