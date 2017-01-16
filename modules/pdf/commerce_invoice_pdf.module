@@ -54,7 +54,7 @@ function commerce_invoice_pdf_entity_view($entity, $type, $view_mode, $langcode)
     $entity->content['pdf_link'] = [
       '#theme' => 'link',
       '#weight' => 50,
-      '#text' => 'Download PDF',
+      '#text' => t('Download PDF'),
       '#path' => 'invoices/' . $entity->invoice_id . '/pdf',
       '#options' => [
         'query' => ['download' => 1],
