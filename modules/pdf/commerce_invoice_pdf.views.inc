@@ -20,5 +20,15 @@ function commerce_invoice_pdf_views_data() {
     'real field' => 'invoice_id',
   ];
 
+  $data['commerce_order']['commerce_invoice_pdf'] = array(
+    'title' => t('Invoice PDF'),
+    'help' => t('A link to download a PDF invoice for this order.'),
+    'field' => array(
+      'handler' => \Drupal\commerce_invoice_pdf\Views\PdfOrderFieldHandler::class,
+      'click sortable' => FALSE,
+    ),
+    'real field' => 'order_id',
+  );
+
   return $data;
 }
