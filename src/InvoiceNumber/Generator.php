@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_invoice\InvoiceNumber;
 
+use Drupal\commerce_invoice\Entity\Invoice;
 use Drupal\commerce_invoice\Entity\InvoiceNumberPattern;
 
 /**
@@ -30,15 +31,15 @@ class Generator {
    *
    * @return string
    */
-  protected function getKey() {
-    return token_replace($this->pattern);
+  protected function getKey(Invoice $invoice = NULL) {
+    return token_replace($this->pattern, ['commerce_invoice' => $invoice]);
   }
 
   /**
    * Returns the next invoice number for the pattern.
    */
-  public function getNext() {
-    $key = $this->getKey();
+  public function getNext(Invoice $invoice = NULL) {
+    $key = $this->getKey($invoice);
 
     return new InvoiceNumber($this->getNextSequence($key), $key, $this->name);
   }

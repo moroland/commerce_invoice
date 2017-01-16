@@ -51,7 +51,7 @@ class InvoiceController extends \EntityAPIController {
       }
       $generator = new Generator($pattern);
       $transaction = isset($transaction) ? $transaction : db_transaction();
-      $entity->setInvoiceNumber($generator->getNext());
+      $entity->setInvoiceNumber($generator->getNext($entity));
     }
 
     try {

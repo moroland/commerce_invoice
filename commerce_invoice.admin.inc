@@ -64,7 +64,7 @@ function commerce_invoice_number_pattern_form($form, &$form_state, \Drupal\comme
 
   $form['token_help'] = array(
     '#theme' => 'token_tree',
-    '#token_types' => array('date', 'site'),
+    '#token_types' => array('date', 'site', 'commerce_invoice'),
     '#global_types' => FALSE,
   );
 
