@@ -46,6 +46,26 @@ function commerce_invoice_pdf_entity_info_alter(&$entity_info) {
 }
 
 /**
+ * Implements hook_entity_view().
+ */
+function commerce_invoice_pdf_entity_view($entity, $type, $view_mode, $langcode) {
+  // Add "Download PDF" link to the bottom of invoice page.
+  if ($type == 'commerce_invoice' && $view_mode == 'full') {
+    $entity->content['pdf_link'] = [
+      '#theme' => 'link',
+      '#weight' => 50,
+      '#text' => 'Download PDF',
+      '#path' => 'invoices/' . $entity->invoice_id . '/pdf',
+      '#options' => [
+        'query' => ['download' => 1],
+        'html' => FALSE,
+        'attributes' => [],
+      ],
+    ];
+  }
+}
+
+/**
  * Debug page callback to view the HTML used for generating the PDF.
  */
 function commerce_invoice_pdf_html(Invoice $invoice) {
