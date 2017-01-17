@@ -1,0 +1,19 @@
+<?php
+/**
+ * @file
+ * Install and uninstall functions for the Commerce Invoice Mail module.
+ */
+
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_invoice_mail_uninstall() {
+  variable_del('commerce_invoice_mail_subject');
+  variable_del('commerce_invoice_mail_body');
+  variable_del('commerce_invoice_mail_attach_pdf_invoice');
+  variable_del('commerce_invoice_mail_plaintext');
+  variable_del('commerce_invoice_mail_cc');
+  variable_del('commerce_invoice_mail_bcc');
+  variable_del('commerce_invoice_mail_from');
+}

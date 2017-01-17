@@ -1,0 +1,8 @@
+name = Commerce Invoice Mail
+description = Send generated invoices by mail
+package = Commerce (contrib)
+core = 7.x
+
+dependencies[] = commerce_invoice_pdf
+dependencies[] = mailsystem
+dependencies[] = mimemail
