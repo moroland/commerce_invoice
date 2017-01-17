@@ -5,41 +5,8 @@
  */
 
 /**
- * Implements hook_schema_alter().
- */
-function commerce_invoice_pdf_schema_alter(&$schema) {
-  $schema['commerce_invoice']['fields']['pdf'] = _commerce_invoice_pdf_schema();
-  $schema['commerce_invoice']['indexes']['pdf'] = array('pdf');
-}
-
-/**
- * Implements hook_install().
- */
-function commerce_invoice_pdf_install() {
-  $base_table = 'commerce_invoice';
-  if (!db_field_exists($base_table, 'pdf')) {
-    db_add_field($base_table, 'pdf', _commerce_invoice_pdf_schema());
-    db_add_index($base_table, 'pdf', array('pdf'));
-  }
-}
-
-/**
  * Implements hook_uninstall().
  */
 function commerce_invoice_pdf_uninstall() {
   variable_del('commerce_invoice_pdf_css_files');
-}
-
-/**
- * Returns the schema for the 'pdf' column on the commerce_invoice table.
- *
- * @return array
- */
-function _commerce_invoice_pdf_schema() {
-  return array(
-    'description' => 'The {file_managed}.fid of the PDF for this invoice.',
-    'type' => 'int',
-    'unsigned' => TRUE,
-    'not null' => FALSE,
-  );
 }

@@ -160,25 +160,33 @@ function commerce_invoice_pdf_generate(Invoice $invoice) {
  * @return object|FALSE
  *   An object describing the managed file for the PDF (including the 'uri'
  *   property), or FALSE on failure.
+ *
  */
 function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate = TRUE) {
-  if (!$recreate && !empty($invoice->pdf)) {
-    $file = file_load($invoice->pdf);
+  // Find existing pdf if it exists.
+  $fid = db_select('file_usage', 'f')
+    ->fields('f', array('fid'))
+    ->condition('module', 'commerce_invoice_pdf')
+    ->condition('type', 'commerce_invoice')
+    ->condition('id', $invoice->invoice_id)
+    ->execute()
+    ->fetchField();
+  // If file exists and does not need to be recreated, just return it!
+  if(!$recreate && !empty($fid)) {
+    $file = file_load($fid);
     if ($file && file_exists($file->uri)) {
       return $file;
     }
   }
+  // Return false if file should not be created.
   if (!$create) {
     return FALSE;
   }
-
-  $invoice->pdf = NULL;
-
+  // Invoices must not be public! Make sure private file system is configured.
   if (!drupal_realpath('private://')) {
     watchdog('commerce_invoice', 'The private filesystem directory is not configured.', [], WATCHDOG_ERROR);
     return FALSE;
   }
-
   $dir = 'private://commerce_invoice/' . date('Y-m', $invoice->created);
   $filename = preg_replace('/[^a-z0-9-]+/i', '_', 'invoice_' . $invoice->getInvoiceNumber()) . '.pdf';
   if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
@@ -196,9 +204,10 @@ function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate
     return FALSE;
   }
 
-  $invoice->pdf = $file->fid;
-  $invoice->save();
-  file_usage_add($file, 'commerce_invoice_pdf', 'commerce_invoice', $invoice->invoice_id);
+  // Do not increment usage if the file was recreated.
+  if(empty($fid)) {
+    file_usage_add($file, 'commerce_invoice_pdf', 'commerce_invoice', $invoice->invoice_id);
+  }
 
   return $file;
 }
@@ -279,7 +288,9 @@ function template_preprocess_commerce_invoice_pdf_page(&$variables) {
   $variables['title'] = commerce_invoice_title($invoice);
   $variables['invoice_date'] = format_date($invoice->invoice_date, 'custom', 'Y-m-d');
   $variables['invoice_number'] = check_plain($invoice->getInvoiceNumber());
-  $variables['order_number'] = check_plain($invoice->wrapper()->order->order_number->value());
+  if(!empty($invoice->order_id)) {
+    $variables['order_number'] = check_plain($invoice->wrapper()->order->order_number->value());
+  }
 
   $variables['logo'] = '';
   $logo = variable_get('commerce_invoice_pdf_logo', 'misc/druplicon.png');
