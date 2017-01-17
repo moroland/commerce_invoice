@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Views integration for the Commerce Invoice PDF module.
  */
 

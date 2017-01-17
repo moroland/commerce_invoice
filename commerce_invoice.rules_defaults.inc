@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Default rules for the Commerce Invoice module.
+ */
+
+/**
  * Implements hook_default_rules_configuration().
  */
 function commerce_invoice_default_rules_configuration() {

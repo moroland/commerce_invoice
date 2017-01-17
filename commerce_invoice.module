@@ -444,7 +444,7 @@ function commerce_invoice_calculate_total(Invoice $invoice) {
   $wrapper = $invoice->wrapper();
 
   // No items - no need to calculate anything.
-  if(!$wrapper->commerce_invoice_items->count()) {
+  if (!$wrapper->commerce_invoice_items->count()) {
     return;
   }
 
@@ -463,7 +463,7 @@ function commerce_invoice_calculate_total(Invoice $invoice) {
 
   foreach ($wrapper->commerce_invoice_items as $delta => $line_item_wrapper) {
     // Do not allow invoices with mixed currencies.
-    if($currency_code != $line_item_wrapper->commerce_total->currency_code->value()) {
+    if ($currency_code != $line_item_wrapper->commerce_total->currency_code->value()) {
       $wrapper->commerce_line_items->offsetUnset($delta);
       continue;
     }

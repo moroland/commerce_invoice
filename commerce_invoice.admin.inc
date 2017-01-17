@@ -212,9 +212,9 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
  */
 function commerce_invoice_form_validate(&$form, &$form_state) {
   $invoice = $form_state['commerce_invoice'];
-  if (!empty($form_state['values']['owner'])){
+  if (!empty($form_state['values']['owner'])) {
     // Given username exists.
-    if($account = user_load_by_name($form_state['values']['owner'])) {
+    if ($account = user_load_by_name($form_state['values']['owner'])) {
       $form_state['values']['uid'] = $account->uid;
     }
     // Given username does not exist.

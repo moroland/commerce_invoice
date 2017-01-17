@@ -67,7 +67,7 @@ function commerce_invoice_required_field_bases() {
 
 /**
  * Required field instances for Commerce Invoice.
- * 
+ *
  * @return array
  *   An array of field instance definitions.
  */

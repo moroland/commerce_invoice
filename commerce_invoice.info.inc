@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Provides metadata for the invoice entity.
+ */
+
+/**
  * Implements hook_entity_property_info().
  */
 function commerce_invoice_entity_property_info() {

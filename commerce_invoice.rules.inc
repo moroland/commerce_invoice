@@ -56,7 +56,7 @@ function commerce_invoice_rules_action_info() {
   );
 
   $actions['commerce_invoice_load_current'] = array(
-    'base'=>'commerce_invoice_action_load_current',
+    'base' => 'commerce_invoice_action_load_current',
     'label' => t('Fetch current invoice in order'),
     'parameter' => array(
       'order' => array(
@@ -65,7 +65,10 @@ function commerce_invoice_rules_action_info() {
       ),
     ),
     'provides' => array(
-      'commerce_invoice' => array('type' => 'commerce_invoice', 'label' => t('Fetched invoice')),
+      'commerce_invoice' => array(
+        'type' => 'commerce_invoice',
+        'label' => t('Fetched invoice')
+      ),
     ),
     'group' => t('Commerce Invoice'),
   );
@@ -79,5 +82,5 @@ function commerce_invoice_rules_action_info() {
 function commerce_invoice_action_load_current($order) {
   $invoice = commerce_invoice_load_current($order);
 
-  return ['commerce_invoice'=>$invoice];
+  return ['commerce_invoice' => $invoice];
 }
