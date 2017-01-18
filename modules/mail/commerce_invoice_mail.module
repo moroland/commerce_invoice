@@ -8,75 +8,71 @@
 use Drupal\commerce_invoice\Entity\Invoice;
 
 function commerce_invoice_mail_send(Invoice $invoice, $to = '') {
-  try {
-    $subject = variable_get('commerce_invoice_mail_subject', '');
-    $body = variable_get('commerce_invoice_mail_body', '');
+  $subject = variable_get('commerce_invoice_mail_subject', '');
+  $body = variable_get('commerce_invoice_mail_body', '');
 
-    $attachments = [];
-    if (variable_get('commerce_invoice_mail_attach_pdf_invoice', TRUE)) {
-      $attachments = commerce_invoice_mail_pdf_prepare($invoice);
-    }
-    // Get the invoice owner
-    // @todo: Do I want this empty object here?
-    $owner = new stdClass();
-    if (!empty($invoice->uid)) {
-      $owner = $invoice->wrapper()->owner->value();
-      $to = $owner->mail;
-    };
-    // @todo: Add "Order owner" as a fallback.
-    $owner_language = user_preferred_language($owner);
+  $attachments = [];
+  if (variable_get('commerce_invoice_mail_attach_pdf_invoice', TRUE)) {
+    $attachments = commerce_invoice_mail_pdf_prepare($invoice);
+  }
+  // Get the invoice owner
+  // @todo: Do I want this empty object here?
+  $owner = new stdClass();
+  if (!empty($invoice->uid)) {
+    $owner = $invoice->wrapper()->owner->value();
+    $to = $owner->mail;
+  };
+  // @todo: Add "Order owner" as a fallback.
+  $owner_language = user_preferred_language($owner);
 
-    // Replace tokens
-    $subject = token_replace($subject, [
-      'user' => $owner,
-      'commerce_invoice' => $invoice
-    ]);
-    $body = token_replace($body, [
-      'user' => $owner,
-      'commerce_invoice' => $invoice
-    ]);
+  // Replace tokens
+  $subject = token_replace($subject, [
+    'user' => $owner,
+    'commerce_invoice' => $invoice
+  ]);
+  $body = token_replace($body, [
+    'user' => $owner,
+    'commerce_invoice' => $invoice
+  ]);
 
-    // Set mail values.
-    $params = [
+  // Set mail values.
+  $params = [
+    'subject' => $subject,
+    'body' => $body,
+    'plain' => !empty(variable_get('commerce_invoice_mail_plaintext', FALSE)),
+    'attachments' => $attachments,
+    'headers' => [
+      'cc' => trim(variable_get('commerce_invoice_mail_cc', '')),
+      'bcc' => trim(variable_get('commerce_invoice_mail_bcc', '')),
+    ],
+    'context' => [
       'subject' => $subject,
       'body' => $body,
-      'plain' => !empty(variable_get('commerce_invoice_mail_plaintext', FALSE)),
-      'attachments' => $attachments,
-      'headers' => [
-        'cc' => trim(variable_get('commerce_invoice_mail_cc', '')),
-        'bcc' => trim(variable_get('commerce_invoice_mail_bcc', '')),
-      ],
-      'context' => [
-        'subject' => $subject,
-        'body' => $body,
-        'invoice' => $invoice,
-      ],
-    ];
-    // Remove the Bcc and Cc headers if they are empty, else this will crash phpmailer and maybe other modules.
-    if (empty($params['headers']['cc'])) {
-      unset($params['headers']['cc']);
-    }
-    if (empty($params['headers']['bcc'])) {
-      unset($params['headers']['bcc']);
-    }
+      'invoice' => $invoice,
+    ],
+  ];
+  // Remove the Bcc and Cc headers if they are empty, else this will crash phpmailer and maybe other modules.
+  if (empty($params['headers']['cc'])) {
+    unset($params['headers']['cc']);
+  }
+  if (empty($params['headers']['bcc'])) {
+    unset($params['headers']['bcc']);
+  }
 
-    $from = variable_get('commerce_invoice_mail_from', variable_get('site_mail', ini_get('sendmail_from')));
-    $mailkey = 'commerce_invoice_send_order_invoice';
-    $send = TRUE;
-    // Send mail.
-    $message = drupal_mail('commerce_invoice_mail', $mailkey, $to, $owner_language, $params, $from, $send);;
-    if (!$message['result']) {
-      watchdog('commerce_invoice_mail', 'Error sending e-mail (from %from to %to).', array(
-        '%from' => $message['from'],
-        '%to' => $message['to']
-      ), WATCHDOG_ERROR);
-      throw new Exception(t('Unable to send e-mail. Contact the site administrator if the problem persists.'));
-    }
-    return TRUE;
-  } catch (Exception $exception) {
-    _drupal_log_error(_drupal_decode_exception($exception), FALSE);
+  $from = variable_get('commerce_invoice_mail_from', variable_get('site_mail', ini_get('sendmail_from')));
+  $mailkey = 'commerce_invoice_send_order_invoice';
+  $send = TRUE;
+  // Send mail.
+  $message = drupal_mail('commerce_invoice_mail', $mailkey, $to, $owner_language, $params, $from, $send);;
+  if (!$message['result']) {
+    watchdog('commerce_invoice_mail', 'Error sending e-mail (from %from to %to).', array(
+      '%from' => $message['from'],
+      '%to' => $message['to']
+    ), WATCHDOG_ERROR);
+    drupal_set_message(t('Unable to send e-mail. Contact the site administrator if the problem persists.'));
     return FALSE;
   }
+  return TRUE;
 }
 
 
