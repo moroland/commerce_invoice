@@ -34,6 +34,11 @@ class InvoiceController extends \EntityAPIController {
     if (empty($entity->invoice_date)) {
       $entity->invoice_date = $entity->created;
     }
+    // Default due date should be invoice_date + Net D x 24 x 60 x 60.
+    if (empty($entity->invoice_due)) {
+      $net_d = variable_get('commerce_invoice_net_d', 30);
+      $entity->invoice_due = $entity->created + $net_d * 86400;
+    }
     if (empty($entity->uid)) {
       if (!empty($entity->order_id) && !empty($entity->wrapper()->order->owner)) {
         $entity->uid = $entity->wrapper()->order->owner->getIdentifier();
@@ -94,6 +99,9 @@ class InvoiceController extends \EntityAPIController {
       ? check_plain($invoice->getInvoiceNumber()->__toString())
       : t('Not yet generated');
     $info[t('Invoice date')] = check_plain(format_date($invoice->invoice_date));
+    if ($invoice->invoice_due) {
+      $info[t('Due date')] = check_plain(format_date($invoice->invoice_due));
+    }
     $info[t('Status')] = commerce_invoice_statuses()[$invoice->invoice_status];
     $info[t('Order')] = isset($invoice->order_id)
       ? l($invoice->wrapper()->order->order_number->value(), 'admin/commerce/orders/' . $invoice->order_id)

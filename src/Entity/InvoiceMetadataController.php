@@ -60,6 +60,12 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
       'description' => t('The invoice date.'),
       'schema field' => 'invoice_date',
     );
+    $properties['invoice_due'] = array(
+      'type' => 'date',
+      'label' => t('Due date'),
+      'description' => t('The invoice due date.'),
+      'schema field' => 'invoice_due',
+    );
     $properties['invoice_number'] = array(
       'type' => 'text',
       'label' => t('Invoice number'),

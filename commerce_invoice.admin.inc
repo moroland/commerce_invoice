@@ -125,10 +125,19 @@ function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Ent
 
   $form['invoice_date'] = array(
     '#type' => 'date_select',
-    '#weight' => -60,
+    '#weight' => -61,
     '#title' => t('Invoice date'),
     '#date_format' => 'Y-m-d',
     '#default_value' => date('Y-m-d H:i:s', !empty($invoice->invoice_date) ? $invoice->invoice_date : REQUEST_TIME),
+  );
+
+  $net_s = variable_get('commerce_invoice_net_d', 30) * 86400;
+  $form['invoice_due'] = array(
+    '#type' => 'date_select',
+    '#weight' => -60,
+    '#title' => t('Invoice due'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => date('Y-m-d H:i:s', !empty($invoice->invoice_due) ? $invoice->invoice_due : REQUEST_TIME + $net_s),
   );
 
   field_attach_form('commerce_invoice', $invoice, $form, $form_state);
@@ -241,10 +250,17 @@ function commerce_invoice_form_submit(&$form, &$form_state) {
     $invoice_date = strtotime($form_state['values']['invoice_date']);
   }
 
+  if (!empty($form_state['values']['invoice_due']) && !is_numeric($form_state['values']['invoice_due'])) {
+    $invoice_due = strtotime($form_state['values']['invoice_due']);
+  }
+
   /** @var \Drupal\commerce_invoice\Entity\Invoice $invoice */
   $invoice = entity_ui_form_submit_build_entity($form, $form_state);
   if (!empty($invoice_date)) {
     $invoice->invoice_date = $invoice_date;
+  }
+  if (!empty($invoice_due)) {
+    $invoice->invoice_due = $invoice_due;
   }
 
   commerce_invoice_calculate_total($invoice);

@@ -36,6 +36,7 @@
       <?php print t('Order number:') . ' ' . $order_number; ?><br>
     <?php endif; ?>
     <?php print t('Invoice date:') . ' ' . $invoice_date; ?><br>
+    <?php print t('Invoice due:') . ' ' . $invoice_due; ?><br>
     <?php print t('Status:') . ' ' . $invoice->invoice_status; ?>
   </div>
   <?php print render($content); ?>

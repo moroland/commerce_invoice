@@ -22,6 +22,7 @@ class Invoice extends \Entity {
   public $number_key;
   public $uid;
   public $invoice_date;
+  public $invoice_due;
   public $invoice_status = self::STATUS_PENDING;
   public $created;
   public $changed;
