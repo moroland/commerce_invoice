@@ -18,7 +18,12 @@ function template_preprocess_commerce_invoice_number(array &$variables) {
     $number = $variables['invoice_number'];
     $variables['key'] = $number->getKey();
     $variables['pattern_name'] = $number->getPatternName();
-    $variables['sequence'] = $number->getSequence();
+    if ($number->pattern->skip_sequence) {
+      $variables['sequence'] = '';
+    }
+    else {
+      $variables['sequence'] = $number->getSequence();
+    }
   }
 }
 
@@ -34,10 +39,6 @@ function template_preprocess_commerce_invoice_number(array &$variables) {
  *   A sanitized string.
  */
 function theme_commerce_invoice_number(array $variables) {
-  if (empty($variables['sequence'])) {
-    return '';
-  }
-
   if (!strlen($variables['key'])) {
     $invoice_number = (string) $variables['sequence'];
   }
@@ -45,7 +46,10 @@ function theme_commerce_invoice_number(array $variables) {
     $invoice_number = str_replace(InvoiceNumber::SEQUENCE_TOKEN, $variables['sequence'], $variables['key']);
   }
   else {
-    $invoice_number = $variables['key'] . '_' . $variables['sequence'];
+    $invoice_number = $variables['key'];
+    if (!empty($variables['sequence'])) {
+      $invoice_number .= '_' . $variables['sequence'];
+    }
   }
 
   return $variables['sanitize'] ? check_plain($invoice_number) : $invoice_number;

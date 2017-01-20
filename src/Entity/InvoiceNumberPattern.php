@@ -6,6 +6,7 @@ class InvoiceNumberPattern extends \Entity {
 
   public $name;
   public $label;
+  public $skip_sequence;
   public $pattern;
 
   /**

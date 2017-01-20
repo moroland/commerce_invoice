@@ -62,6 +62,14 @@ function commerce_invoice_number_pattern_form($form, &$form_state, \Drupal\comme
     '#required' => TRUE,
   );
 
+  $form['skip_sequence'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide sequence integer'),
+    '#description' => t('Do not append sequence integer to the invoice number pattern.')
+      . '<br />' . t('WARNING: If you check the checkbox, make sure the above pattern provides unique invoice numbers. Failure to do so may result in multiple invoices with same numbers.'),
+        '#default_value' => $pattern->skip_sequence,
+  );
+
   $form['token_help'] = array(
     '#theme' => 'token_tree',
     '#token_types' => array('date', 'site', 'commerce_invoice'),

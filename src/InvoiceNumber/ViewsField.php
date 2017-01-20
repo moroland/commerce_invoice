@@ -8,13 +8,13 @@ class ViewsField extends \views_handler_field {
    * {@inheritdoc}
    */
   public function render($values) {
-    $variables = [
-      'key' => $this->get_value($values, 'number_key'),
-      'sequence' => $this->get_value($values),
-      'pattern_name' => $this->get_value($values, 'number_pattern'),
-    ];
+    $key = $this->get_value($values, 'number_key');
+    $sequence = $this->get_value($values);
+    $pattern_name = $this->get_value($values, 'number_pattern');
 
-    return theme('commerce_invoice_number', $variables);
+    $invoiceNumber = new InvoiceNumber($sequence, $key, $pattern_name);
+
+    return (string) $invoiceNumber;
   }
 
   /**

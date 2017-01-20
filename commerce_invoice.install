@@ -207,6 +207,12 @@ function commerce_invoice_schema() {
         'length' => 255,
         'not null' => TRUE,
       ),
+      'skip_sequence' => array(
+        'description' => 'Boolean indicating whether to skip the sequence number or not.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'pattern' => array(
         'description' => 'The invoice number pattern.',
         'type' => 'varchar',
@@ -264,4 +270,17 @@ function commerce_invoice_update_7200() {
     'default' => 0,
   );
   db_add_field('commerce_invoice', 'invoice_due', $field);
+}
+
+/**
+ * Add due skip_sequence field to {commerce_invoice_number_pattern} table.
+ */
+function commerce_invoice_update_7201() {
+  $field = array(
+    'description' => 'Boolean indicating whether to skip the sequence number or not.',
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
+  db_add_field('commerce_invoice_number_pattern', 'skip_sequence', $field);
 }

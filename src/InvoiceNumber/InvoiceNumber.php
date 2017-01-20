@@ -21,6 +21,7 @@ class InvoiceNumber {
     $this->sequence = $sequence;
     $this->key = $key;
     $this->patternName = $patternName;
+    $this->pattern = commerce_invoice_number_pattern_load($patternName);
   }
 
   /**
