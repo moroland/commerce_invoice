@@ -233,29 +233,7 @@ function commerce_invoice_views_api() {
  *   A saved invoice entity.
  */
 function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $cancel_existing = TRUE) {
-  /** @var Invoice $invoice */
-  $invoice = entity_create('commerce_invoice', []);
-  $invoice->order_id = $order->order_id;
-  $invoice->order_revision_id = $order->revision_id;
-  $invoice->uid = $order->uid;
-  $invoice->log = t('Created from order @id', ['@id' => $order->order_id]);
-  $invoice->revision = TRUE;
-  $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
-  $invoice->number_pattern = $pattern->name;
-
-  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-  foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
-    $invoice_item = clone $line_item;
-    $invoice_item->line_item_id = NULL;
-    commerce_line_item_save($invoice_item);
-    $invoice->wrapper()->commerce_invoice_items[] = $invoice_item;
-  }
-
-  // Copy the billing address.
-  $address =  $order_wrapper->commerce_customer_billing->commerce_customer_address->value();
-  $invoice->wrapper()->commerce_invoice_address->set($address);
-
-  $invoice->wrapper()->commerce_invoice_total = $order_wrapper->commerce_order_total->value();
+  $invoice = commerce_invoice_object_prepare_from_order($order, $pattern);
 
   if ($cancel_existing) {
     $existing = commerce_invoice_load_for_order($order);
@@ -284,6 +262,38 @@ function commerce_invoice_create_from_order($order, InvoiceNumberPattern $patter
       $previous->save();
     }
   }
+
+  return $invoice;
+}
+
+/**
+ * Prepares the invoice object but does not save it, nor it manipulates
+ * other invoices related to the given order.
+ */
+function commerce_invoice_object_prepare_from_order($order, InvoiceNumberPattern $pattern = NULL) {
+  /** @var Invoice $invoice */
+  $invoice = entity_create('commerce_invoice', []);
+  $invoice->order_id = $order->order_id;
+  $invoice->order_revision_id = $order->revision_id;
+  $invoice->uid = $order->uid;
+  $invoice->log = t('Created from order @id', ['@id' => $order->order_id]);
+  $invoice->revision = TRUE;
+  $pattern = $pattern ?: InvoiceNumberPattern::getDefault();
+  $invoice->number_pattern = $pattern->name;
+
+  $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+  foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
+    $invoice_item = clone $line_item;
+    $invoice_item->line_item_id = NULL;
+    commerce_line_item_save($invoice_item);
+    $invoice->wrapper()->commerce_invoice_items[] = $invoice_item;
+  }
+
+  // Copy the billing address.
+  $address = $order_wrapper->commerce_customer_billing->commerce_customer_address->value();
+  $invoice->wrapper()->commerce_invoice_address->set($address);
+
+  $invoice->wrapper()->commerce_invoice_total = $order_wrapper->commerce_order_total->value();
 
   return $invoice;
 }
