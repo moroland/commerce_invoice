@@ -321,4 +321,7 @@ function template_preprocess_commerce_invoice_pdf_page(&$variables) {
   foreach (['header', 'footer', 'text'] as $part) {
     $variables['invoice_' . $part] = isset($settings['invoice_' . $part]) ? $settings['invoice_' . $part] : '';
   }
+
+  $variables['theme_hook_suggestions'][] = 'commerce_invoice_pdf_page';
+  $variables['theme_hook_suggestions'][] = 'commerce_invoice_pdf_page__' . $invoice->number_pattern;
 }
