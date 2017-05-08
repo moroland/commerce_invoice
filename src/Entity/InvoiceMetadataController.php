@@ -95,4 +95,12 @@ class InvoiceMetadataController extends \EntityDefaultMetadataController {
     return $info;
   }
 
+  /**
+   * Getter callback for invoice_number.
+   */
+  public function invoiceNumberGetter(Invoice $invoice) {
+
+    return (string) $invoice->getInvoiceNumber();
+  }
+
 }
