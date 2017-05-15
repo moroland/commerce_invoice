@@ -65,5 +65,46 @@ function commerce_invoice_default_rules_configuration() {
   }
 }');
 
+  $configs['commerce_invoice_cancel_unpaid'] = entity_import('rules_config', '{ "commerce_invoice_cancel_unpaid" : {
+    "LABEL" : "Cancel unpaid invoice",
+    "PLUGIN" : "rule",
+    "OWNER" : "rules",
+    "TAGS" : [ "commerce_invoice" ],
+    "REQUIRES" : [ "rules" ],
+    "USES VARIABLES" : { "invoice" : { "label" : "Invoice", "type" : "commerce_invoice" } },
+    "IF" : [
+      { "NOT data_is" : { "data" : [ "invoice:status" ], "value" : "paid" } }
+    ],
+    "DO" : [
+      { "data_set" : { "data" : [ "invoice:status" ], "value" : "canceled" } },
+      { "entity_save" : { "data" : [ "invoice" ] } }
+    ]
+  }
+}');
+
+  $configs['commerce_invoice_cancel_on_order_cancel'] = entity_import('rules_config', '{ "commerce_invoice_cancel_on_order_cancel" : {
+    "LABEL" : "Cancel invoice when the order is canceled",
+    "PLUGIN" : "reaction rule",
+    "OWNER" : "rules",
+    "TAGS" : [ "commerce_invoice" ],
+    "REQUIRES" : [ "rules", "commerce_invoice", "entity" ],
+    "ON" : { "commerce_order_update" : [] },
+    "IF" : [
+      { "NOT data_is_empty" : { "data" : [ "commerce-order-unchanged" ] } },
+      { "NOT data_is" : { "data" : [ "commerce-order-unchanged:state" ], "value" : "canceled" } },
+      { "data_is" : { "data" : [ "commerce-order:state" ], "value" : "canceled" } },
+      { "commerce_invoice_order_has_invoice" : { "order" : [ "commerce-order" ] } }
+    ],
+    "DO" : [
+      { "commerce_invoice_load_current" : {
+          "USING" : { "order" : [ "commerce-order" ] },
+          "PROVIDE" : { "commerce_invoice" : { "commerce_invoice" : "Fetched invoice" } }
+        }
+      },
+      { "component_commerce_invoice_cancel_unpaid" : { "invoice" : [ "commerce-invoice" ] } }
+    ]
+  }
+}');
+
   return $configs;
 }

@@ -23,6 +23,17 @@ function commerce_invoice_rules_condition_info() {
     'group' => t('Commerce Invoice'),
   );
 
+  $conditions['commerce_invoice_order_has_invoice'] = array(
+    'label' => t('Order has a current invoice'),
+    'parameter' => array(
+      'order' => array(
+        'type' => 'commerce_order',
+        'label' => t('The order'),
+      ),
+    ),
+    'group' => t('Commerce Invoice'),
+  );
+
   return $conditions;
 }
 
@@ -75,7 +86,7 @@ function commerce_invoice_rules_action_info() {
     'provides' => array(
       'commerce_invoice' => array(
         'type' => 'commerce_invoice',
-        'label' => t('Fetched invoice')
+        'label' => t('Fetched invoice'),
       ),
     ),
     'group' => t('Commerce Invoice'),
@@ -85,12 +96,18 @@ function commerce_invoice_rules_action_info() {
 }
 
 /**
- * Action: Fetch current invoice in order.
+ * Rules action: Fetch current invoice in order.
+ *
+ * @param object $order
+ *
+ * @return array
+ *   An array containing the invoice keyed as commerce_invoice, or an empty
+ *   array if no invoice exists.
  */
 function commerce_invoice_action_load_current($order) {
   $invoice = commerce_invoice_load_current($order);
 
-  return ['commerce_invoice' => $invoice];
+  return $invoice ? array('commerce_invoice' => $invoice) : array();
 }
 
 /**
@@ -100,4 +117,13 @@ function commerce_invoice_action_create_from_order($order, InvoiceNumberPattern 
   $invoice = commerce_invoice_create_from_order($order, $pattern, $cancel_existing);
 
   return ['commerce_invoice' => $invoice];
+}
+
+/**
+ * Rules condition: whether the order has a current invoice.
+ *
+ * @return bool
+ */
+function commerce_invoice_order_has_invoice($order) {
+  return commerce_invoice_load_current($order) ? TRUE : FALSE;
 }
