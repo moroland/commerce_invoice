@@ -397,6 +397,16 @@ function commerce_invoice_menu() {
     'access arguments' => ['view', 'commerce_invoice', 1],
   ];
 
+  $items['admin/commerce/orders/%/invoices/create'] = [
+    'title' => 'Create invoice',
+    'description' => 'Create an invoice for the given order.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['commerce_invoice_create_from_order_form', 3],
+    'access arguments' => ['administer commerce_invoice entities'],
+    'file' => 'commerce_invoice.admin.inc',
+    'type' => MENU_LOCAL_ACTION
+  ];
+
   return $items;
 }
 

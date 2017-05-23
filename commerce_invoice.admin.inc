@@ -277,3 +277,60 @@ function commerce_invoice_form_submit(&$form, &$form_state) {
 
   $form_state['redirect'] = 'admin/commerce/invoices';
 }
+
+/**
+ * Form callback for invoicing orders.
+ *
+ * @param array $form
+ * @param array &$form_state
+ * @param int $order_id
+ *
+ * @return array
+ */
+function commerce_invoice_create_from_order_form($form, &$form_state, $order_id) {
+  drupal_set_title(t('Create invoice for the order @order_id', ['@order_id' => $order_id]));
+  $form['order_id'] = [
+    '#type' => 'value',
+    '#value' => $order_id
+  ];
+  $form['number_pattern'] = [
+    '#title' => t('Invoice number pattern'),
+    '#type' => 'select',
+    '#options' => commerce_invoice_number_pattern_options_list(),
+    '#default_value' => \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefaultName(),
+    '#description' => t('The pattern used to generate the invoice number (<a href="@url">administer patterns</a>).', [
+      '@url' => url('admin/commerce/config/invoice/numbers'),
+    ]),
+    '#required' => TRUE,
+  ];
+  $form['cancel_existing'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Cancel existing.'),
+    '#description' => t('Cancel all other invoices for the order.'),
+    '#default_value' => 1,
+  ];
+  $form['actions'] = ['#type' => 'actions'];
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create'),
+  );
+
+  return $form;
+}
+
+/**
+ * Form API submit callback for invoicing orders.
+ */
+function commerce_invoice_create_from_order_form_submit($form, &$form_state) {
+  $order_id = $form_state['values']['order_id'];
+  $number_pattern = $form_state['values']['number_pattern'];
+  $cancel_existing = $form_state['values']['cancel_existing'];
+  $order = commerce_order_load($order_id);
+  $number_pattern = commerce_invoice_number_pattern_load($number_pattern);
+
+  $invoice = commerce_invoice_create_from_order($order, $number_pattern, $cancel_existing);
+
+  $link = l($invoice->getInvoiceNumber(), '/admin/commerce/invoices/' . $invoice->invoice_id);
+  drupal_set_message(t('Invoice !invoice created', ['!invoice' => $link]));
+  $form_state['redirect'] = 'admin/commerce/orders/' . $order_id . '/invoices';
+}
