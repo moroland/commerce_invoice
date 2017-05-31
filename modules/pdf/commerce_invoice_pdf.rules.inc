@@ -43,7 +43,6 @@ function commerce_invoice_pdf_rules_action_info() {
   return $actions;
 }
 
-
 /**
  * Rules action: Create a PDF file for a given invoice entity.
  *
