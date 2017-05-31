@@ -350,6 +350,14 @@ function commerce_invoice_pdf_action_info() {
     'pass rows' => FALSE,
   );
 
+  $items['commerce_invoice_pdf_recreate_pdfs'] = array(
+    'type' => 'commerce_invoice',
+    'label' => t('Recreate PDF invoices'),
+    'configurable' => FALSE,
+    'vbo_configurable' => FALSE,
+    'pass rows' => FALSE,
+  );
+
   return $items;
 }
 
@@ -424,6 +432,13 @@ function commerce_invoice_pdf_download_invoices($invoice, $context) {
     $url = l($url, $url, array('absolute' => TRUE));
     _views_bulk_operations_log(t('An archive has been created and can be downloaded from: !url', array('!url' => $url)));
   }
+}
+
+/**
+ * Action callback to generate a PDF.
+ */
+function commerce_invoice_pdf_recreate_pdfs($invoice) {
+  commerce_invoice_pdf_create($invoice, TRUE, TRUE);
 }
 
 /**
