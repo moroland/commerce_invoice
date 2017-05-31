@@ -391,13 +391,7 @@ function commerce_invoice_pdf_download_invoices_submit($form, $form_state) {
 function commerce_invoice_pdf_download_invoices($invoice, $context) {
   global $user;
   $destination = $context['destination'];
-  // Switch to the default theme, in order to render the invoice properly if the
-  // admin theme was other than the default one.
-  global $theme;
-  $theme = NULL;
-  $custom_theme = &drupal_static('menu_get_custom_theme');
-  $custom_theme = variable_get('theme_default', 'bartik');
-  drupal_theme_initialize();
+  _commerce_invoice_pdf_ensure_default_theme();
   // Get the invoice file.
   if ($file = commerce_invoice_pdf_create($invoice)) {
     $zip = new ZipArchive();
@@ -430,4 +424,58 @@ function commerce_invoice_pdf_download_invoices($invoice, $context) {
     $url = l($url, $url, array('absolute' => TRUE));
     _views_bulk_operations_log(t('An archive has been created and can be downloaded from: !url', array('!url' => $url)));
   }
+}
+
+/**
+ * Switch to the default theme, in order to render the invoice properly if the
+ * admin theme was other than the default one.
+ */
+function _commerce_invoice_pdf_ensure_default_theme() {
+  global $theme;
+  $theme = NULL;
+  $custom_theme = &drupal_static('menu_get_custom_theme');
+  $custom_theme = variable_get('theme_default', 'bartik');
+  drupal_theme_initialize();
+}
+
+/**
+ * Implements hook_advanced_queue_info().
+ */
+function commerce_invoice_pdf_advanced_queue_info() {
+  $items['commerce_invoice_pdf_create_queue'] = array(
+    'label' => t('Create PDF invoices queue'),
+    'worker callback' => 'commerce_invoice_pdf_create_worker',
+    'retry after' => 30,
+    'max attempts' => 5,
+    // PDF creation is relatively slow process with a low priority
+    'weight' => -100,
+  );
+
+  return $items;
+}
+
+function commerce_invoice_pdf_create_worker($item, $end_time = FALSE) {
+  $data = $item->data;
+
+  /** @var Invoice $invoice */
+  if ($invoice = entity_load_single('commerce_invoice', $data['invoice_id'])) {
+    _commerce_invoice_pdf_ensure_default_theme();
+
+    // Make sure that any entity_access() down the line returns TRUE.
+    global $user;
+    if($user->uid !== $invoice->uid) {
+      $user = user_load($invoice->uid);
+    }
+    if (commerce_invoice_pdf_create($invoice, TRUE, $data['recreate'])) {
+      return array(
+        'status' => ADVANCEDQUEUE_STATUS_SUCCESS,
+        'result' => 'Processed ' . $item->item_id,
+      );
+    }
+  }
+
+  return array(
+    'status' => ADVANCEDQUEUE_STATUS_FAILURE,
+    'result' => 'Error processing queue item ' . $item->item_id,
+  );
 }
