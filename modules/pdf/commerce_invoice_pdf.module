@@ -438,6 +438,7 @@ function commerce_invoice_pdf_download_invoices($invoice, $context) {
  * Action callback to generate a PDF.
  */
 function commerce_invoice_pdf_recreate_pdfs($invoice) {
+  _commerce_invoice_pdf_ensure_default_theme();
   commerce_invoice_pdf_create($invoice, TRUE, TRUE);
 }
 
