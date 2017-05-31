@@ -325,3 +325,97 @@ function template_preprocess_commerce_invoice_pdf_page(&$variables) {
   $variables['theme_hook_suggestions'][] = 'commerce_invoice_pdf_page';
   $variables['theme_hook_suggestions'][] = 'commerce_invoice_pdf_page__' . $invoice->number_pattern;
 }
+
+/**
+ * Implements hook_action_info().
+ */
+function commerce_invoice_pdf_action_info() {
+  $items['commerce_invoice_pdf_download_invoices'] = array(
+    'type' => 'commerce_invoice',
+    'label' => t('Zip and download PDF invoices'),
+    'configurable' => FALSE,
+    'vbo_configurable' => TRUE,
+    'pass rows' => FALSE,
+  );
+
+  return $items;
+}
+
+/**
+ * Configuration form shown to the user before the action gets executed.
+ */
+function commerce_invoice_pdf_download_invoices_form($context) {
+  $form['filename'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Filename'),
+    '#default_value' => 'invoices-archive--' . format_date(time(), 'custom', 'Y-m'),
+    '#field_suffix' => '.zip',
+    '#description' => t('The name of the archive file.'),
+  );
+  return $form;
+}
+
+/**
+ * Assembles a unique URI for the archive.
+ */
+function commerce_invoice_pdf_download_invoices_submit($form, $form_state) {
+  $dir = 'private://commerce_invoice/archives';
+  if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+    throw new Exception(t('The directory does not exist or is not writable: @dir', ['@dir' => $dir]));
+  }
+  $destination = $dir . basename($form_state['values']['filename']) . '.zip';
+  // If the chosen filename already exists, file_destination() will append
+  // an integer to it in order to make it unique.
+  $destination = file_destination($destination, FILE_EXISTS_RENAME);
+
+  return array(
+    'destination' => $destination,
+  );
+}
+
+/**
+ * Action callback to generate a PDF.
+ */
+function commerce_invoice_pdf_download_invoices($invoice, $context) {
+  global $user;
+  $destination = $context['destination'];
+  // Switch to the default theme, in order to render the invoice properly if the
+  // admin theme was other than the default one.
+  global $theme;
+  $theme = NULL;
+  $custom_theme = &drupal_static('menu_get_custom_theme');
+  $custom_theme = variable_get('theme_default', 'bartik');
+  drupal_theme_initialize();
+  // Get the invoice file.
+  if ($file = commerce_invoice_pdf_create($invoice)) {
+    $zip = new ZipArchive();
+    // If the archive already exists, open it. If not, create it.
+    if (file_exists($destination)) {
+      $opened = $zip->open(drupal_realpath($destination));
+    }
+    else {
+      $opened = $zip->open(drupal_realpath($destination), ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE);
+    }
+    if ($opened) {
+      $zip->addFile(drupal_realpath($file->uri), $file->filename);
+      $zip->close();
+    }
+  }
+
+  // The operation is complete, create a temporary file entity and provide a
+  // download link to the user.
+  if ($context['progress']['current'] == $context['progress']['total']) {
+    $archive_file = new stdClass();
+    $archive_file->uri = $destination;
+    $archive_file->filename = basename($destination);
+    $archive_file->filemime = file_get_mimetype($destination);
+    $archive_file->uid = $user->uid;
+    $archive_file->status = FALSE;
+    clearstatcache();
+    file_save($archive_file);
+
+    $url = file_create_url($archive_file->uri);
+    $url = l($url, $url, array('absolute' => TRUE));
+    _views_bulk_operations_log(t('An archive has been created and can be downloaded from: !url', array('!url' => $url)));
+  }
+}
