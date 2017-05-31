@@ -165,7 +165,7 @@ function commerce_invoice_pdf_generate(Invoice $invoice) {
  *   property), or FALSE on failure.
  *
  */
-function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate = TRUE) {
+function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate = FALSE) {
   // Find existing pdf if it exists.
   $fid = db_select('file_usage', 'f')
     ->fields('f', array('fid'))
@@ -198,21 +198,33 @@ function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate
   }
 
   $data = commerce_invoice_pdf_generate($invoice);
-  $file = file_save_data($data, $dir . '/' . $filename, FILE_EXISTS_REPLACE);
-  if (!$file) {
-    watchdog('commerce_invoice', 'Failed to create PDF file for invoice @id, path @path', [
-      '@id' => $invoice->invoice_id,
-      '@path' => $dir . '/' . $filename,
-    ], WATCHDOG_ERROR);
-    return FALSE;
+
+  // file_save_data() cannot be used as it insists on global $user to be owner
+  // of the file. In this use case, owner of the invoice must be owner of the
+  // pdf.
+  if ($uri = file_unmanaged_save_data($data, $dir . '/' . $filename, FILE_EXISTS_REPLACE)) {
+    // Create a file object.
+    $file = new stdClass();
+    $file->fid = (empty($fid) ? NULL : $fid);
+    $file->uri = $uri;
+    $file->filename = drupal_basename($uri);
+    $file->filemime = file_get_mimetype($file->uri);
+    $file->uid = $invoice->uid;
+    $file->status = FILE_STATUS_PERMANENT;
+    $file = file_save($file);
+    // Increment usage only if the file was not recreated.
+    if (empty($fid)) {
+      file_usage_add($file, 'commerce_invoice_pdf', 'commerce_invoice', $invoice->invoice_id);
+    }
+
+    return $file;
   }
 
-  // Do not increment usage if the file was recreated.
-  if (empty($fid)) {
-    file_usage_add($file, 'commerce_invoice_pdf', 'commerce_invoice', $invoice->invoice_id);
-  }
-
-  return $file;
+  watchdog('commerce_invoice', 'Failed to create PDF file for invoice @id, path @path', [
+    '@id' => $invoice->invoice_id,
+    '@path' => $dir . '/' . $filename,
+  ], WATCHDOG_ERROR);
+  return FALSE;
 }
 
 /**
