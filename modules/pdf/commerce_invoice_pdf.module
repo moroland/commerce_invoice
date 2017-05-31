@@ -279,7 +279,7 @@ function commerce_invoice_pdf_theme() {
       'browser' => FALSE
     ],
     'template' => 'commerce_invoice_pdf_page',
-    'path' => drupal_get_path('module', 'commerce_invoice_pdf') . '/templates',
+    'path' => drupal_get_path('module', 'commerce-invoice-pdf') . '/templates',
   );
 
   return $items;
