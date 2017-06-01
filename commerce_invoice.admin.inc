@@ -3,6 +3,7 @@
  * @file
  * Administrative form and page callbacks for the Commerce Invoice module.
  */
+use Drupal\commerce_invoice\Entity\Invoice;
 
 /**
  * Settings form for the Commerce Invoice module.
@@ -107,7 +108,7 @@ function commerce_invoice_number_pattern_form_submit(&$form, &$form_state) {
  *
  * @return array
  */
-function commerce_invoice_form($form, &$form_state, \Drupal\commerce_invoice\Entity\Invoice $invoice, $op = 'edit') {
+function commerce_invoice_form($form, &$form_state, Invoice $invoice, $op = 'edit') {
   $wrapper = $invoice->wrapper();
 
   if (!empty($invoice->order_id)) {
@@ -289,6 +290,7 @@ function commerce_invoice_form_submit(&$form, &$form_state) {
  */
 function commerce_invoice_create_from_order_form($form, &$form_state, $order_id) {
   drupal_set_title(t('Create invoice for the order @order_id', ['@order_id' => $order_id]));
+  $order = commerce_order_load($order_id);
   $form['order_id'] = [
     '#type' => 'value',
     '#value' => $order_id
@@ -309,6 +311,13 @@ function commerce_invoice_create_from_order_form($form, &$form_state, $order_id)
     '#description' => t('Cancel all other invoices for the order.'),
     '#default_value' => 1,
   ];
+  $form['invoice_status'] = [
+    '#type' => 'select',
+    '#title' => t('Invoice status'),
+    '#options' => commerce_invoice_statuses(),
+    '#description' => t('Choose the status of the new invoice.'),
+    '#default_value' => _commerce_invoice_suggest_invoice_status($order),
+  ];
   $form['actions'] = ['#type' => 'actions'];
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -325,10 +334,11 @@ function commerce_invoice_create_from_order_form_submit($form, &$form_state) {
   $order_id = $form_state['values']['order_id'];
   $number_pattern = $form_state['values']['number_pattern'];
   $cancel_existing = $form_state['values']['cancel_existing'];
+  $status = $form_state['values']['invoice_status'];
   $order = commerce_order_load($order_id);
   $number_pattern = commerce_invoice_number_pattern_load($number_pattern);
 
-  $invoice = commerce_invoice_create_from_order($order, $number_pattern, $cancel_existing);
+  $invoice = commerce_invoice_create_from_order($order, $number_pattern, $cancel_existing, $status);
 
   $link = l($invoice->getInvoiceNumber(), '/admin/commerce/invoices/' . $invoice->invoice_id);
   drupal_set_message(t('Invoice !invoice created', ['!invoice' => $link]));

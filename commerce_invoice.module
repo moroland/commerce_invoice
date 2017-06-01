@@ -228,15 +228,21 @@ function commerce_invoice_views_api() {
  *   An invoice number pattern.
  * @param bool                      $cancel_existing
  *   Cancel existing invoices for the order.
+ * @param string                    $status
+ *   Override the default invoice status
  *
  * @return Invoice
  *   A saved invoice entity.
  */
-function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $cancel_existing = TRUE) {
+function commerce_invoice_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $cancel_existing = TRUE, $status = NULL) {
   $invoice = commerce_invoice_object_prepare_from_order($order, $pattern);
 
   if ($cancel_existing) {
     $existing = commerce_invoice_load_for_order($order);
+  }
+
+  if ($status) {
+    $invoice->invoice_status = $status;
   }
 
   $invoice->save();
@@ -497,4 +503,32 @@ function commerce_invoice_calculate_total(Invoice $invoice) {
   }
 
   $wrapper->commerce_invoice_total->data = $invoice_total['data'];
+}
+
+/**
+ * Suggests invoice status for a given order, considering previous invoice's
+ * status (given the previous invoice exists)
+ */
+function _commerce_invoice_suggest_invoice_status($order) {
+  /** @var Invoice $previous_invoice */
+  $previous_invoice = commerce_invoice_load_current($order);
+  if ($previous_invoice) {
+    $new_status = $previous_invoice->invoice_status;
+    // @todo: if previous invoice's status was STATUS_PAID but new invoice's total
+    //    will differ (i.e.  order total changed since last invoice was issued)
+    //    new status should be STATUS_PENDING.
+  }
+  else {
+    switch ($order->status) {
+      case 'completed':
+        $new_status = Invoice::STATUS_PAID;
+        break;
+      case 'canceled':
+        $new_status = Invoice::STATUS_CANCELED;
+        break;
+      default:
+        $new_status = Invoice::STATUS_PENDING;
+    }
+  }
+  return $new_status;
 }
