@@ -56,7 +56,7 @@ function commerce_invoice_rules_action_info() {
         'label' => t('The invoice number pattern'),
         'optional' => TRUE,
         'options list' => 'commerce_invoice_number_pattern_options_list',
-        'default value' => \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefault(),
+        'default value' => \Drupal\commerce_invoice\Entity\InvoiceNumberPattern::getDefaultName(),
       ),
       'cancel_existing' => array(
         'type' => 'boolean',
