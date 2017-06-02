@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Provides views sort handler for invoice numbers.
+ */
 
 namespace Drupal\commerce_invoice\InvoiceNumber;
 

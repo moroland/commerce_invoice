@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Invoice Number Generator
+ */
 
 namespace Drupal\commerce_invoice\InvoiceNumber;
 

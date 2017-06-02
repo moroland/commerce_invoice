@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Invoice Number
+ */
 
 namespace Drupal\commerce_invoice\InvoiceNumber;
 
