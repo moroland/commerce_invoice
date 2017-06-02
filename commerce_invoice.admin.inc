@@ -340,7 +340,11 @@ function commerce_invoice_create_from_order_form_submit($form, &$form_state) {
 
   $invoice = commerce_invoice_create_from_order($order, $number_pattern, $cancel_existing, $status);
 
-  $link = l($invoice->getInvoiceNumber(), '/admin/commerce/invoices/' . $invoice->invoice_id);
-  drupal_set_message(t('Invoice !invoice created', ['!invoice' => $link]));
+  $url = url('/admin/commerce/invoices/' . $invoice->invoice_id);
+  $number = $invoice->getInvoiceNumber();
+  drupal_set_message(t('Invoice <a href="@url">@number</a> created', [
+    '@url' => $url,
+    '@number' => $number,
+  ]));
   $form_state['redirect'] = 'admin/commerce/orders/' . $order_id . '/invoices';
 }

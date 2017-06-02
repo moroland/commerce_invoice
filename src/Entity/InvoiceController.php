@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * The entity controller for invoices.
+ */
 
 namespace Drupal\commerce_invoice\Entity;
 

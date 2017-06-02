@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Provides entity metadata integration.
+ */
 
 namespace Drupal\commerce_invoice\Entity;
 

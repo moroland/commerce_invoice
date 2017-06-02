@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Invoice Number Pattern entity
+ */
 
 namespace Drupal\commerce_invoice\Entity;
 
