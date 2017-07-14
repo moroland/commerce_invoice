@@ -113,7 +113,10 @@ function commerce_invoice_action_load_current($order) {
 /**
  * Action: Create invoice for a given order.
  */
-function commerce_invoice_action_create_from_order($order, InvoiceNumberPattern $pattern = NULL, $cancel_existing = TRUE) {
+function commerce_invoice_action_create_from_order($order, $pattern = NULL, $cancel_existing = TRUE) {
+  if (is_string($pattern)) {
+    $pattern = commerce_invoice_number_pattern_load($pattern);
+  }
   $invoice = commerce_invoice_create_from_order($order, $pattern, $cancel_existing);
 
   return ['commerce_invoice' => $invoice];
