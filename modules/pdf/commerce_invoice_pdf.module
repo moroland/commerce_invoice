@@ -254,7 +254,8 @@ function commerce_invoice_pdf_load_dompdf() {
       require_once DRUPAL_ROOT . '/' . $path . '/autoload.inc.php';
       $dompdf = new \Dompdf\Dompdf([
         'tempDir' => DOMPDF_TEMP_DIR,
-        'fontDir' => DOMPDF_FONT_DIR
+        'fontDir' => DOMPDF_FONT_DIR,
+        'isHtml5ParserEnabled' => TRUE,
       ]);
       $dompdf->setPaper('a4', 'portrait');
     }
