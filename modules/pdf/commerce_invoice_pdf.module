@@ -465,7 +465,7 @@ function commerce_invoice_pdf_advanced_queue_info() {
     'retry after' => 30,
     'max attempts' => 5,
     // PDF creation is relatively slow process with a low priority
-    'weight' => -100,
+    'weight' => 100,
   );
 
   return $items;
