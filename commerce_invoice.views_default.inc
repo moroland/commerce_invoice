@@ -217,6 +217,15 @@ function commerce_invoice_views_default_views() {
     'nothing' => 'nothing',
   );
   $handler->display->display_options['fields']['ctools_dropdown']['check_access'] = 1;
+  /* Filter criterion: Invoice: Status */
+  $handler->display->display_options['filters']['status']['id'] = 'status';
+  $handler->display->display_options['filters']['status']['table'] = 'commerce_invoice';
+  $handler->display->display_options['filters']['status']['field'] = 'status';
+  $handler->display->display_options['filters']['status']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['status']['expose']['operator_id'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['label'] = 'Status';
+  $handler->display->display_options['filters']['status']['expose']['operator'] = 'status_op';
+  $handler->display->display_options['filters']['status']['expose']['identifier'] = 'status';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');

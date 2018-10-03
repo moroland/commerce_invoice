@@ -284,3 +284,17 @@ function commerce_invoice_update_7201() {
   );
   db_add_field('commerce_invoice_number_pattern', 'skip_sequence', $field);
 }
+
+/**
+ * Update the commerce_invoice_invoices view.
+ */
+function commerce_invoice_update_7202() {
+  _commerce_invoice_revert_views();
+}
+
+function _commerce_invoice_revert_views() {
+  views_invalidate_cache();
+  if ($view = views_get_view('commerce_invoice_invoices')) {
+    views_revert_view($view);
+  }
+}
