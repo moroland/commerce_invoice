@@ -7,6 +7,29 @@
 use Drupal\commerce_invoice\Entity\Invoice;
 
 /**
+ * Implements hook_rules_event_info().
+ */
+function commerce_invoice_pdf_rules_event_info() {
+  $events = array();
+  $events['commerce_invoice_pdf_created'] = array(
+    'label' => t('After creating an invoice PDF'),
+    'group' => t('Commerce Invoice'),
+    'variables' => array(
+      'commerce_invoice' => array(
+        'type' => 'commerce_invoice',
+        'label' => t('The invoice entity'),
+      ),
+      'file' => array(
+        'type' => 'file',
+        'label' => t('The file entity of the newly created invoice PDF'),
+      ),
+    ),
+  );
+
+  return $events;
+}
+
+/**
  * Implements hook_rules_action_info().
  */
 function commerce_invoice_pdf_rules_action_info() {

@@ -216,6 +216,7 @@ function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate
     if (empty($fid)) {
       file_usage_add($file, 'commerce_invoice_pdf', 'commerce_invoice', $invoice->invoice_id);
     }
+    rules_invoke_all('commerce_invoice_pdf_created', $invoice, $file);
 
     return $file;
   }
