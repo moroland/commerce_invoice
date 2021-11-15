@@ -190,7 +190,7 @@ function commerce_invoice_pdf_create(Invoice $invoice, $create = TRUE, $recreate
     watchdog('commerce_invoice', 'The private filesystem directory is not configured.', [], WATCHDOG_ERROR);
     return FALSE;
   }
-  $dir = 'private://commerce_invoice/' . date('Y-m', $invoice->created);
+  $dir = variable_get('commerce_invoice_pdf_location', 'private://commerce_invoice/') . date('Y-m', $invoice->created);
   $filename = preg_replace('/[^a-z0-9-]+/i', '_', 'invoice_' . $invoice->getInvoiceNumber()) . '.pdf';
   if (!file_prepare_directory($dir, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
     watchdog('commerce_invoice', 'The directory does not exist or is not writable: @dir', ['@dir' => $dir], WATCHDOG_ERROR);
